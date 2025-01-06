@@ -1,27 +1,35 @@
 <?php
-    $current_page = basename($_SERVER['PHP_SELF']);
+session_start();
 ?>
 <header>
     <div class="header-container">
         <div class="logo">
-            <a href="index.php">
-                <span class="logo-icon">🍔</span>
-                <span class="logo-text">SnackHaven</span>
+            <a href="/snackhaven">
+                <i class="fas fa-hamburger logo-icon"></i>
+                <span>SnackHaven</span>
             </a>
         </div>
+        
         <nav>
             <ul>
-                <li><a href="index.php" <?php echo ($current_page == 'index.php') ? 'class="active"' : ''; ?>>Trang Chủ</a></li>
-                <li><a href="menu.php" <?php echo ($current_page == 'menu.php') ? 'class="active"' : ''; ?>>Thực Đơn</a></li>
-                <li><a href="deals.php" <?php echo ($current_page == 'deals.php') ? 'class="active"' : ''; ?>>Khuyến Mãi</a></li>
-                <li><a href="about.php" <?php echo ($current_page == 'about.php') ? 'class="active"' : ''; ?>>Về Chúng Tôi</a></li>
-                <li><a href="contact.php" <?php echo ($current_page == 'contact.php') ? 'class="active"' : ''; ?>>Liên Hệ</a></li>
+                <li><a href="/snackhaven" class="active">Trang chủ</a></li>
+                <li><a href="/snackhaven/menu">Thực đơn</a></li>
+                <li><a href="/snackhaven/about">Giới thiệu</a></li>
+                <li><a href="/snackhaven/contact">Liên hệ</a></li>
             </ul>
         </nav>
+        
         <div class="header-actions">
-            <a href="#" class="search-icon"><i class="fas fa-search"></i></a>
-            <a href="cart.php" class="cart-icon"><i class="fas fa-shopping-cart"></i></a>
-            <a href="login.php" class="login-btn">Đăng Nhập</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="/snackhaven/profile">
+                    <i class="fas fa-user"></i>
+                    <?php echo htmlspecialchars($_SESSION['username']); ?>
+                </a>
+                <a href="/snackhaven/auth/logout.php" class="login-btn">Đăng xuất</a>
+            <?php else: ?>
+                <a href="/snackhaven/auth/login.php" class="login-btn">Đăng nhập</a>
+                <a href="/snackhaven/auth/register.php">Đăng ký</a>
+            <?php endif; ?>
         </div>
     </div>
 </header> 

@@ -1,18 +1,22 @@
 <?php
 // Đọc file .env nếu tồn tại
-function loadEnv($path = '.env') {
-    if(file_exists($path)) {
-        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+function loadEnv() {
+    // Lấy đường dẫn tuyệt đối đến thư mục gốc của project
+    $rootPath = dirname(__DIR__);
+    $envPath = $rootPath . '/.env';
+
+    if(file_exists($envPath)) {
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
+            // Bỏ qua comment
+            if (strpos(trim($line), '#') === 0) {
+                continue;
+            }
+            
             if (strpos($line, '=') !== false) {
                 list($name, $value) = explode('=', $line, 2);
                 $name = trim($name);
                 $value = trim($value);
-                
-                // Xóa dấu ngoặc kép nếu có
-                if (strpos($value, '"') === 0) {
-                    $value = trim($value, '"');
-                }
                 
                 putenv("$name=$value");
                 $_ENV[$name] = $value;
@@ -21,7 +25,7 @@ function loadEnv($path = '.env') {
     }
 }
 
-// Load biến môi trường từ file .env nếu có
+// Load biến môi trường từ file .env
 loadEnv();
 
 // Lấy URL database từ biến môi trường
@@ -30,9 +34,10 @@ if (!$db_url) {
     die('DB_URL environment variable is not set');
 }
 
-$db = parse_url($db_url);
-
 try {
+    // Parse URL database
+    $db = parse_url($db_url);
+    
     // Tạo DSN cho MySQL với SSL
     $dsn = sprintf(
         "mysql:host=%s;port=%s;dbname=%s",
@@ -45,15 +50,14 @@ try {
     $options = array(
         PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/../ca.pem',
         PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     );
 
     // Kết nối database
     $pdo = new PDO($dsn, $db['user'], $db['pass'], $options);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    $pdo->exec("SET NAMES utf8mb4");
 } catch(PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
-    die();
+    die("Connection failed: " . $e->getMessage());
 }
 ?> 
