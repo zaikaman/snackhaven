@@ -6,7 +6,7 @@ require_once __DIR__ . '/url_config.php';
     <div class="header-container">
         <div class="logo">
             <a href="<?php echo url(); ?>">
-                <img src="<?php echo url('assets/images/logo.png'); ?>" alt="Logo" class="logo-icon">
+                <i class="fas fa-hamburger logo-icon"></i>
                 <span>SnackHaven</span>
             </a>
         </div>
