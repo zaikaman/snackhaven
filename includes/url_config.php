@@ -1,6 +1,9 @@
 <?php
-// Kiểm tra môi trường
-$isProduction = strpos($_SERVER['HTTP_HOST'], 'herokuapp.com') !== false;
+require_once __DIR__ . '/config.php';
+
+// Kiểm tra môi trường từ biến ENVIRONMENT
+$environment = getenv('ENVIRONMENT') ?: 'local';
+$isProduction = $environment === 'host';
 
 // Base URL cho website
 define('BASE_URL', $isProduction ? '' : '/snackhaven');
