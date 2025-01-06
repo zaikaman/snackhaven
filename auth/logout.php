@@ -1,4 +1,5 @@
 <?php
+require_once '../includes/url_config.php';
 session_start();
 
 // Xóa tất cả các biến session
@@ -13,5 +14,5 @@ if (isset($_COOKIE[session_name()])) {
 session_destroy();
 
 // Chuyển hướng về trang chủ
-header('Location: /snackhaven');
+header('Location: ' . url());
 exit; 

@@ -1,9 +1,10 @@
 <?php
+require_once '../includes/url_config.php';
 require_once '../includes/config.php';
 
 if (!isset($_GET['token'])) {
     // Nếu không có token, chuyển về trang chủ
-    header('Location: /snackhaven');
+    header('Location: ' . url());
     exit;
 }
 
@@ -54,5 +55,5 @@ try {
 
 // Chuyển hướng về trang đăng nhập với thông báo
 $status = $response['success'] ? 'success' : 'error';
-header("Location: /snackhaven/auth/login.php?status={$status}&message=" . urlencode($response['message']));
+header('Location: ' . url('auth/login.php') . "?status={$status}&message=" . urlencode($response['message']));
 exit; 

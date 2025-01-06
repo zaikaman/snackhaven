@@ -1,9 +1,10 @@
 <?php
+require_once '../includes/url_config.php';
 session_start();
 
 // Nếu đã đăng nhập thì chuyển về trang chủ
 if (isset($_SESSION['user_id'])) {
-    header('Location: /snackhaven');
+    header('Location: ' . url());
     exit;
 }
 
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $response['success'] = true;
         $response['message'] = 'Đăng nhập thành công!';
-        $response['redirect'] = '/snackhaven';
+        $response['redirect'] = url();
     } catch (Exception $e) {
         $response['message'] = $e->getMessage();
     }
@@ -63,7 +64,7 @@ $message = $_GET['message'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - SnackHaven</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo url('assets/css/style.css'); ?>">
     <link rel="stylesheet" href="auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -120,8 +121,8 @@ $message = $_GET['message'] ?? '';
             </form>
 
             <div class="auth-footer">
-                <p>Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a></p>
-                <p><a href="forgot-password.php">Quên mật khẩu?</a></p>
+                <p>Chưa có tài khoản? <a href="<?php echo url('auth/register.php'); ?>">Đăng ký ngay</a></p>
+                <p><a href="<?php echo url('auth/forgot-password.php'); ?>">Quên mật khẩu?</a></p>
             </div>
         </div>
     </div>
