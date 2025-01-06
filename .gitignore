@@ -1,2 +1,10 @@
 .env
 vendor/
+ca.pem
+.DS_Store
+/vendor/
+composer.phar
+composer.lock
+.env.*.php
+.env.php
+*.log

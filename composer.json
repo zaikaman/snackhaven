@@ -1,0 +1,13 @@
+{
+    "name": "snackhaven/web",
+    "description": "Website bán đồ ăn nhanh SnackHaven",
+    "require": {
+        "php": "^8.0",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "heroku/heroku-buildpack-php": "*"
+    }
+} 
