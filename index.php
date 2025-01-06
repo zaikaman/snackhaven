@@ -1,3 +1,6 @@
+<?php
+require_once 'includes/url_config.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>

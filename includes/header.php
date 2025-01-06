@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/url_config.php';
 ?>
 <header>
     <div class="header-container">
