@@ -18,22 +18,21 @@
     <section class="featured-categories">
         <h2>Danh Mục Nổi Bật</h2>
         <div class="category-grid">
-            <div class="category-item">
-                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd" alt="Hamburger">
-                <h3>Hamburger</h3>
-            </div>
-            <div class="category-item">
-                <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591" alt="Pizza">
-                <h3>Pizza</h3>
-            </div>
-            <div class="category-item">
-                <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e" alt="Đồ uống">
-                <h3>Đồ uống</h3>
-            </div>
-            <div class="category-item">
-                <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5" alt="Combo">
-                <h3>Combo</h3>
-            </div>
+            <?php
+            require_once 'includes/config.php';
+            
+            try {
+                $stmt = $pdo->query("SELECT * FROM categories ORDER BY id");
+                while($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo '<div class="category-item">';
+                    echo '<img src="' . htmlspecialchars($category['image_url']) . '" alt="' . htmlspecialchars($category['name']) . '">';
+                    echo '<h3>' . htmlspecialchars($category['name']) . '</h3>';
+                    echo '</div>';
+                }
+            } catch(PDOException $e) {
+                echo "Error: " . $e->getMessage();
+            }
+            ?>
         </div>
     </section>
 
