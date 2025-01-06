@@ -1,37 +1,36 @@
 <?php
-// Đọc file .env
+// Đọc file .env nếu tồn tại
 function loadEnv($path = '.env') {
-    if(!file_exists($path)) {
-        throw new Exception('.env file không tồn tại');
-    }
-    
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value);
-            
-            // Xóa dấu ngoặc kép nếu có
-            if (strpos($value, '"') === 0) {
-                $value = trim($value, '"');
+    if(file_exists($path)) {
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value);
+                
+                // Xóa dấu ngoặc kép nếu có
+                if (strpos($value, '"') === 0) {
+                    $value = trim($value, '"');
+                }
+                
+                putenv("$name=$value");
+                $_ENV[$name] = $value;
             }
-            
-            putenv("$name=$value");
-            $_ENV[$name] = $value;
         }
     }
 }
 
-// Load biến môi trường từ file .env
-try {
-    loadEnv();
-} catch (Exception $e) {
-    die($e->getMessage());
-}
+// Load biến môi trường từ file .env nếu có
+loadEnv();
 
 // Lấy URL database từ biến môi trường
-$db = parse_url(getenv('DB_URL'));
+$db_url = getenv('DB_URL');
+if (!$db_url) {
+    die('DB_URL environment variable is not set');
+}
+
+$db = parse_url($db_url);
 
 try {
     // Tạo DSN cho MySQL với SSL
