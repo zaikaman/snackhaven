@@ -3,7 +3,7 @@ session_start();
 
 // Nếu đã đăng nhập thì chuyển về trang chủ
 if (isset($_SESSION['user_id'])) {
-    header('Location: /snackhaven');
+    header('Location: ' . url());
     exit;
 }
 
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$user_id, $verification_token, $token_expiry]);
 
         // Gửi email xác thực
-        $verification_link = "https://" . $_SERVER['HTTP_HOST'] . "/snackhaven/auth/verify.php?token=" . $verification_token;
+        $verification_link = "https://" . $_SERVER['HTTP_HOST'] . url('auth/verify.php') . "?token=" . $verification_token;
         $email_body = "
             <h2>Xác thực tài khoản SnackHaven</h2>
             <p>Cảm ơn bạn đã đăng ký tài khoản tại SnackHaven.</p>

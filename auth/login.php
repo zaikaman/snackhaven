@@ -5,7 +5,7 @@ session_start();
 // Nếu đã đăng nhập thì chuyển về trang chủ
 if (isset($_SESSION['user_id'])) {
     header('Location: ' . url());
-    exit;
+    exit();
 }
 
 // Xử lý đăng nhập AJAX
