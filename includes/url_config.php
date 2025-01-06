@@ -1,7 +1,6 @@
 <?php
 // Kiểm tra môi trường
-$isProduction = isset($_SERVER['HEROKU_APP_DIR']) || 
-                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https');
+$isProduction = strpos($_SERVER['HTTP_HOST'], 'herokuapp.com') !== false;
 
 // Base URL cho website
 define('BASE_URL', $isProduction ? '' : '/snackhaven');
