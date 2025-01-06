@@ -1,5 +1,8 @@
 <?php
 session_start();
+require_once '../includes/url_config.php';
+require_once '../includes/config.php';
+require_once '../includes/mail.php';
 
 // Nếu đã đăng nhập thì chuyển về trang chủ
 if (isset($_SESSION['user_id'])) {
@@ -9,9 +12,6 @@ if (isset($_SESSION['user_id'])) {
 
 // Xử lý đăng ký AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once '../includes/config.php';
-    require_once '../includes/mail.php';
-    
     $response = ['success' => false, 'message' => ''];
     
     try {
