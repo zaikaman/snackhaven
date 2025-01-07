@@ -34,16 +34,15 @@ $newMessages = $stmt->fetch()['total'];
 
 // Xây dựng query cho thống kê sản phẩm bán chạy
 $query = "SELECT p.id, p.name, p.price, c.name as category_name,
-          COALESCE(SUM(oi.quantity), 0) as total_quantity,
-          COALESCE(SUM(oi.quantity * oi.price), 0) as total_revenue
+          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND o.status = 'processed' THEN oi.quantity ELSE 0 END), 0) as total_quantity,
+          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND o.status = 'processed' THEN oi.quantity * oi.price ELSE 0 END), 0) as total_revenue
           FROM products p
           LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN order_items oi ON p.id = oi.product_id
-          LEFT JOIN orders o ON oi.order_id = o.id AND o.created_at BETWEEN :start_date AND :end_date
-          AND o.status = 'processed' ";
+          LEFT JOIN orders o ON oi.order_id = o.id ";
 
 if($category_id != 'all') {
-    $query .= " AND p.category_id = :category_id";
+    $query .= " WHERE p.category_id = :category_id";
 }
 
 $query .= " GROUP BY p.id, p.name, p.price, c.name
