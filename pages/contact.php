@@ -3,6 +3,9 @@
         max-width: 1200px;
         margin: 50px auto;
         padding: 0 20px;
+        font-family: "Times New Roman", Times, serif;
+        margin-top: 100px;
+        padding: 50px 0;
     }
 
     .contact-hero {
@@ -36,9 +39,9 @@
     }
 
     .contact-info h2 {
-        color: #ff6b6b;
+        font-family: "Times New Roman", Times, serif;
+        color: #333;
         margin-bottom: 30px;
-        font-size: 1.8em;
     }
 
     .info-item {
@@ -60,6 +63,7 @@
     }
 
     .info-details p {
+        font-family: "Times New Roman", Times, serif;
         color: #666;
         line-height: 1.6;
     }
@@ -72,9 +76,9 @@
     }
 
     .contact-form h2 {
-        color: #ff6b6b;
+        font-family: "Times New Roman", Times, serif;
+        color: #333;
         margin-bottom: 30px;
-        font-size: 1.8em;
     }
 
     .form-group {
@@ -118,6 +122,7 @@
         font-size: 1em;
         cursor: pointer;
         transition: background 0.3s;
+        font-family: "Times New Roman", Times, serif;
     }
 
     .btn-submit:hover {

@@ -7,6 +7,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 <style>
 .product-detail {
+    font-family: "Times New Roman", Times, serif;
     margin-top: 100px;
     padding: 30px 0;
 }
@@ -24,12 +25,14 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .product-category {
+    font-family: "Times New Roman", Times, serif;
     color: #ff6b6b;
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
 
 .product-title {
+    font-family: "Times New Roman", Times, serif;
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 20px;
@@ -37,6 +40,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .product-description {
+    font-family: "Times New Roman", Times, serif;
     font-size: 1.1rem;
     color: #666;
     line-height: 1.8;
@@ -44,6 +48,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .product-price {
+    font-family: "Times New Roman", Times, serif;
     font-size: 2rem;
     color: #ff6b6b;
     font-weight: bold;
@@ -83,6 +88,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .add-to-cart-btn {
+    font-family: "Times New Roman", Times, serif;
     background: #ff6b6b;
     color: white;
     border: none;
@@ -106,6 +112,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .related-products h2 {
+    font-family: "Times New Roman", Times, serif;
     text-align: center;
     margin-bottom: 30px;
     color: #333;
@@ -134,6 +141,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .related-product-title {
+    font-family: "Times New Roman", Times, serif;
     font-size: 1.1rem;
     font-weight: bold;
     margin-bottom: 10px;
@@ -141,6 +149,7 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 }
 
 .related-product-price {
+    font-family: "Times New Roman", Times, serif;
     color: #ff6b6b;
     font-weight: bold;
 }
@@ -156,6 +165,22 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 .breadcrumb-item.active {
     color: #666;
+}
+
+.product-link {
+    text-decoration: none;
+}
+
+.related-product-title {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.related-product-info {
+    padding: 20px;
 }
 
 @media (max-width: 768px) {

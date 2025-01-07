@@ -4,7 +4,13 @@ require_once __DIR__ . '/../includes/config.php';
 
 <style>
 .main-content {
+    font-family: "Times New Roman", Times, serif;
     margin-top: 100px;
+}
+
+.main-content h1 {
+    font-family: "Times New Roman", Times, serif;
+    font-weight: bold;
 }
 
 .categories .nav-pills {
@@ -13,6 +19,7 @@ require_once __DIR__ . '/../includes/config.php';
 }
 
 .categories .nav-link {
+    font-family: "Times New Roman", Times, serif;
     color: #666;
     background: #f8f9fa;
     border-radius: 25px;
@@ -52,12 +59,15 @@ require_once __DIR__ . '/../includes/config.php';
 }
 
 .card-title {
+    font-family: "Times New Roman", Times, serif;
     font-size: 1.2rem;
     font-weight: bold;
     margin-bottom: 10px;
+    color: #333;
 }
 
 .product-description {
+    font-family: "Times New Roman", Times, serif;
     color: #666;
     font-size: 0.9rem;
     margin-bottom: 15px;
@@ -66,6 +76,7 @@ require_once __DIR__ . '/../includes/config.php';
 }
 
 .product-price {
+    font-family: "Times New Roman", Times, serif;
     color: #ff6b6b;
     font-size: 1.1rem;
     font-weight: bold;
@@ -73,6 +84,7 @@ require_once __DIR__ . '/../includes/config.php';
 }
 
 .add-to-cart {
+    font-family: "Times New Roman", Times, serif;
     background: #ff6b6b;
     border: none;
     width: 100%;
@@ -89,6 +101,7 @@ require_once __DIR__ . '/../includes/config.php';
 }
 
 .pagination .page-link {
+    font-family: "Times New Roman", Times, serif;
     color: #ff6b6b;
     border: 1px solid #ff6b6b;
     padding: 8px 16px;
@@ -108,6 +121,10 @@ require_once __DIR__ . '/../includes/config.php';
 .pagination .disabled .page-link {
     color: #ccc;
     border-color: #eee;
+}
+
+.product-link {
+    text-decoration: none;
 }
 </style>
 
