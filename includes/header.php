@@ -26,7 +26,9 @@ require_once __DIR__ . '/url_config.php';
                     <i class="fas fa-user"></i>
                     <?php echo htmlspecialchars($_SESSION['username']); ?>
                 </a>
-                <a href="<?php echo url('auth/logout.php'); ?>" class="login-btn">Đăng xuất</a>
+                <a href="auth/logout.php" id="logout-btn" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
             <?php else: ?>
                 <a href="<?php echo url('auth/login.php'); ?>" class="login-btn">Đăng nhập</a>
                 <a href="<?php echo url('auth/register.php'); ?>">Đăng ký</a>

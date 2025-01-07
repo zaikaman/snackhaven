@@ -39,3 +39,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 }); 
+
+// Xử lý đăng xuất
+$(document).on('click', '#logout-btn', function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        url: 'auth/logout.php',
+        type: 'POST',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: response.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(function() {
+                    // Chuyển hướng về trang chủ
+                    window.location.href = response.redirect;
+                });
+            }
+        },
+        error: function() {
+            // Xử lý lỗi
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại sau.',
+                confirmButtonText: 'Đóng'
+            });
+        }
+    });
+}); 

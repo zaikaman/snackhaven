@@ -210,7 +210,5 @@ require_once 'includes/url_config.php';
             </div>
         </div>
     </div>
-
-    <?php include 'includes/footer.php'; ?>
 </body>
 </html> 
