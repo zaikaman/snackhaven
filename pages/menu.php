@@ -175,12 +175,16 @@ require_once __DIR__ . '/../includes/config.php';
 <template id="product-template">
     <div class="col-md-6 col-lg-4 mb-4">
         <div class="card h-100">
-            <img src="" class="card-img-top product-image" alt="">
-            <div class="card-body">
-                <h5 class="card-title product-name"></h5>
-                <p class="card-text product-description"></p>
-                <p class="card-text product-price"></p>
-                <button class="btn btn-primary add-to-cart">
+            <a href="<?php echo url('product'); ?>?id=" class="product-link">
+                <img src="" class="card-img-top product-image" alt="">
+                <div class="card-body">
+                    <h5 class="card-title product-name"></h5>
+                    <p class="card-text product-description"></p>
+                    <p class="card-text product-price"></p>
+                </div>
+            </a>
+            <div class="card-footer bg-white border-0">
+                <button class="btn btn-primary add-to-cart w-100">
                     <i class="fas fa-shopping-cart me-2"></i>
                     Thêm vào giỏ hàng
                 </button>
@@ -240,16 +244,20 @@ function displayProducts(categoryId, products) {
     products.forEach(product => {
         const clone = template.content.cloneNode(true);
         
-        clone.querySelector('.product-image').src = product.image_url;
-        clone.querySelector('.product-image').alt = product.name;
+        const link = clone.querySelector('.product-link');
+        link.href = `<?php echo url('product'); ?>?id=${product.id}`;
+        
+        const image = clone.querySelector('.product-image');
+        image.src = product.image_url;
+        image.alt = product.name;
+        
         clone.querySelector('.product-name').textContent = product.name;
         clone.querySelector('.product-description').textContent = product.description;
         clone.querySelector('.product-price').textContent = new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
         }).format(product.price);
-
-        clone.querySelector('.add-to-cart').onclick = () => addToCart(product.id);
+        
         container.appendChild(clone);
     });
 }
