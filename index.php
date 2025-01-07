@@ -40,6 +40,16 @@ switch($path) {
         $page = 'profile';
         $title = 'Thông tin cá nhân - SnackHaven';
         break;
+    case 'checkout':
+        // Kiểm tra đăng nhập trước khi cho phép truy cập trang checkout
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . url('auth/login.php'));
+            exit;
+        }
+        $page = 'checkout';
+        $title = 'Thanh toán - SnackHaven';
+        break;
     default:
         header("HTTP/1.0 404 Not Found");
         $page = '404';

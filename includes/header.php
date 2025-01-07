@@ -233,8 +233,22 @@ function updateCartTotal(total) {
 }
 
 function checkout() {
-    // Implement checkout logic here
-    alert('Chức năng thanh toán đang được phát triển!');
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        Swal.fire({
+            title: 'Thông báo',
+            text: 'Vui lòng đăng nhập để thanh toán!',
+            icon: 'warning',
+            confirmButtonText: 'Đăng nhập',
+            showCancelButton: true,
+            cancelButtonText: 'Đóng'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '<?php echo url("auth/login.php"); ?>';
+            }
+        });
+    <?php else: ?>
+        window.location.href = '<?php echo url("checkout"); ?>';
+    <?php endif; ?>
 }
 
 // Close cart when clicking outside
