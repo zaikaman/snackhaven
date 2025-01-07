@@ -26,6 +26,10 @@ switch($path) {
         $page = 'contact';
         $title = 'Liên hệ - SnackHaven';
         break;
+    case 'search':
+        $page = 'search';
+        $title = 'Tìm kiếm - SnackHaven';
+        break;
     case 'product':
         $page = 'product';
         $title = 'Chi tiết sản phẩm - SnackHaven';

@@ -58,33 +58,57 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 .quantity-control {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .quantity-btn {
-    background: #f8f9fa;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #ff6b6b;
+    color: #ff6b6b;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.2rem;
+    font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .quantity-btn:hover {
     background: #ff6b6b;
-    color: white;
+    color: #fff;
 }
 
 .quantity-input {
-    width: 60px;
+    width: 35px;
+    height: 35px;
     text-align: center;
-    font-size: 1.2rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 5px;
+    border: 2px solid #ff6b6b;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #ff6b6b;
+    padding: 0;
+}
+
+.quantity-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.15);
+}
+
+/* Ẩn mũi tên tăng giảm mặc định của input number */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-input[type=number] {
+    -moz-appearance: textfield;
 }
 
 .add-to-cart-btn {

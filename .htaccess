@@ -1,7 +1,11 @@
 RewriteEngine On
+
+# Cho phép truy cập trực tiếp vào thư mục api
+RewriteRule ^api/.+\.php$ - [L]
+
+# Chuyển hướng các request khác vào index.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !\.php$
 RewriteRule ^ index.php [L]
 
 # Bảo mật

@@ -1,6 +1,15 @@
 <?php
 session_start();
 require_once __DIR__ . '/url_config.php';
+
+// Hàm kiểm tra trang hiện tại
+function isCurrentPage($page) {
+    $current_page = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
+    if ($page === '' && $current_page === 'index') {
+        return true;
+    }
+    return $current_page === $page;
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -152,6 +161,151 @@ require_once __DIR__ . '/url_config.php';
             padding: 0;
             margin-right: 15px;
         }
+
+        /* Cart Modal Styles */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: #ff6b6b;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 2px solid #eee;
+            border-radius: 50px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #ff6b6b;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0.5rem 1.5rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #ff5252;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            position: relative;
+        }
+
+        nav a i {
+            font-size: 1.2rem;
+        }
+
+        nav a span {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        nav a:hover {
+            color: #ff6b6b;
+        }
+
+        nav a.active {
+            color: #ff6b6b;
+        }
+
+        /* Tooltip styles */
+        nav a::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        nav a:hover::after {
+            opacity: 1;
+            visibility: visible;
+            bottom: -25px;
+        }
+
+        .header-actions a {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-btn {
+            padding: 0.5rem 1.5rem;
+            background: #ff6b6b;
+            color: white !important;
+            border-radius: 50px;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #ff5252;
+        }
     </style>
 </head>
 <body>
@@ -166,12 +320,41 @@ require_once __DIR__ . '/url_config.php';
         
         <nav>
             <ul>
-                <li><a href="<?php echo url(); ?>" class="active">Trang chủ</a></li>
-                <li><a href="<?php echo url('menu'); ?>">Thực đơn</a></li>
-                <li><a href="<?php echo url('about'); ?>">Giới thiệu</a></li>
-                <li><a href="<?php echo url('contact'); ?>">Liên hệ</a></li>
+                <li>
+                    <a href="<?php echo url(); ?>" class="<?php echo isCurrentPage('') ? 'active' : ''; ?>" data-tooltip="Trang chủ">
+                        <i class="fas fa-home"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo url('menu'); ?>" class="<?php echo isCurrentPage('menu') ? 'active' : ''; ?>" data-tooltip="Thực đơn">
+                        <i class="fas fa-utensils"></i>
+                        <span>Thực đơn</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo url('about'); ?>" class="<?php echo isCurrentPage('about') ? 'active' : ''; ?>" data-tooltip="Giới thiệu">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Giới thiệu</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo url('contact'); ?>" class="<?php echo isCurrentPage('contact') ? 'active' : ''; ?>" data-tooltip="Liên hệ">
+                        <i class="fas fa-envelope"></i>
+                        <span>Liên hệ</span>
+                    </a>
+                </li>
             </ul>
         </nav>
+
+        <div class="search-container">
+            <form action="<?php echo url('search'); ?>" method="GET" class="search-form">
+                <input type="text" name="keyword" class="search-input" placeholder="Tìm kiếm sản phẩm..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
         
         <div class="header-actions">
             <?php if (isset($_SESSION['user_id'])): ?>
@@ -179,12 +362,12 @@ require_once __DIR__ . '/url_config.php';
                     <i class="fas fa-shopping-cart fa-lg"></i>
                     <span class="cart-badge" id="cartBadge">0</span>
                 </button>
-                <a href="<?php echo url('profile'); ?>">
+                <a href="<?php echo url('profile'); ?>" class="<?php echo isCurrentPage('profile') ? 'active' : ''; ?>">
                     <i class="fas fa-user"></i>
                     <?php echo htmlspecialchars($_SESSION['username']); ?>
                 </a>
                 <a href="auth/logout.php" id="logout-btn" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    <i class="fas fa-sign-out-alt"></i>
                 </a>
             <?php else: ?>
                 <a href="<?php echo url('auth/login.php'); ?>" class="login-btn">Đăng nhập</a>
