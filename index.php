@@ -52,7 +52,7 @@ switch($path) {
 <body>
     <?php include 'includes/header.php'; ?>
 
-    <?php
+            <?php
     // Include nội dung trang tương ứng
     switch($page) {
         case 'home':

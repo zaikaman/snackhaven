@@ -3,8 +3,8 @@ require_once __DIR__ . '/../includes/config.php';
 ?>
 
 <div class="hero-section">
-    <h1>SnackHaven - Thiên đường ẩm thực tươi ngon, nhanh chóng và đậm đà hương vị</h1>
-    <button class="order-now">Đặt Hàng Ngay</button>
+    <h1>Thưởng thức ẩm thực tuyệt vời tại SnackHaven</h1>
+    <a href="<?php echo url('menu'); ?>" class="order-now">Đặt hàng ngay</a>
 </div>
 
 <section class="featured-categories">
