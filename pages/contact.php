@@ -1,21 +1,20 @@
 <style>
     .contact-section {
         max-width: 1200px;
-        margin: 50px auto;
+        margin: 0 auto;
         padding: 0 20px;
         font-family: "Times New Roman", Times, serif;
-        margin-top: 100px;
-        padding: 50px 0;
     }
 
     .contact-hero {
         text-align: center;
-        margin-bottom: 50px;
+        margin-bottom: 30px;
+        margin-top: 80px;
         background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1577563908411-5077b6dc7624');
         background-size: cover;
         background-position: center;
         color: white;
-        padding: 100px 20px;
+        padding: 60px 20px;
         border-radius: 15px;
     }
 
@@ -27,8 +26,8 @@
     .contact-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 50px;
-        margin-top: 50px;
+        gap: 30px;
+        margin-top: 30px;
     }
 
     .contact-info {
@@ -154,8 +153,8 @@
     }
 
     .map-section {
-        margin-top: 50px;
-        margin-bottom: 50px;
+        margin-top: 30px;
+        margin-bottom: 30px;
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
