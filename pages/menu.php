@@ -201,7 +201,7 @@ require_once __DIR__ . '/../includes/config.php';
                 </div>
             </a>
             <div class="card-footer bg-white border-0">
-                <button class="btn btn-primary add-to-cart w-100">
+                <button class="btn btn-primary add-to-cart w-100" onclick="handleAddToCart(event)">
                     <i class="fas fa-shopping-cart me-2"></i>
                     Thêm vào giỏ hàng
                 </button>
@@ -315,9 +315,24 @@ function displayPagination(categoryId, totalPages, currentPage) {
     container.appendChild(ul);
 }
 
-function addToCart(productId) {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', productId);
+function handleAddToCart(event) {
+    event.preventDefault();
+    <?php if (!isset($_SESSION['user_id'])): ?>
+        Swal.fire({
+            title: 'Thông báo',
+            text: 'Vui lòng đăng nhập để đặt hàng!',
+            icon: 'warning',
+            confirmButtonText: 'Đăng nhập',
+            showCancelButton: true,
+            cancelButtonText: 'Đóng'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'http://localhost/snackhaven/auth/login.php';
+            }
+        });
+        return;
+    <?php endif; ?>
+    // Xử lý thêm vào giỏ hàng ở đây nếu đã đăng nhập
 }
 
 // Load sản phẩm cho category đầu tiên khi trang được tải
