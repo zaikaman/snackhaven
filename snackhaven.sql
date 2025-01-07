@@ -21,7 +21,7 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '24510cd7-cc3d-11ef-b45a-0e072434234f:1-122';
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '24510cd7-cc3d-11ef-b45a-0e072434234f:1-128';
 
 --
 -- Table structure for table `admins`
@@ -195,7 +195,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (3,10,188000.00,'pending','2025-01-07 07:16:46');
+INSERT INTO `orders` VALUES (3,10,188000.00,'processed','2025-01-07 07:16:46');
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -284,6 +284,7 @@ CREATE TABLE `users` (
   `verification_token` varchar(255) DEFAULT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_token_expires` timestamp NULL DEFAULT NULL,
+  `active` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
@@ -296,7 +297,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (10,'zaikaman','$2y$12$C9z4sKlcewv0HFWWvFZAO.Q2QMOnicbyoAApfREhtfikxakaBah8S','zaikaman123@gmail.com','Thịnh','Đinh','0931816175','536/43/68A Âu Cơ','customer','2025-01-06 17:05:56',1,NULL,NULL,NULL);
+INSERT INTO `users` VALUES (10,'zaikaman','$2y$12$C9z4sKlcewv0HFWWvFZAO.Q2QMOnicbyoAApfREhtfikxakaBah8S','zaikaman123@gmail.com','Thịnh','Đinh','0931816175','536/43/68A Âu Cơ','customer','2025-01-06 17:05:56',1,NULL,NULL,NULL,1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -310,4 +311,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-07 14:22:28
+-- Dump completed on 2025-01-07 18:25:09

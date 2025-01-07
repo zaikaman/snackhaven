@@ -102,6 +102,7 @@ $categories = $stmt->fetchAll();
                                 <th>Tên sản phẩm</th>
                                 <th>Danh mục</th>
                                 <th>Giá</th>
+                                <th>Mô tả</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
@@ -117,6 +118,7 @@ $categories = $stmt->fetchAll();
                                 <td><?php echo $product['name']; ?></td>
                                 <td><?php echo $product['category_name']; ?></td>
                                 <td><?php echo number_format($product['price']); ?>đ</td>
+                                <td><?php echo $product['description']; ?></td>
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-product" 
                                             data-id="<?php echo $product['id']; ?>"

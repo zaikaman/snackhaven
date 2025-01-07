@@ -39,7 +39,7 @@ if(isset($_GET['id'])) {
                     'created_at' => $order['created_at']
                 ],
                 'customer' => [
-                    'name' => $order['name'],
+                    'name' => $order['customer_name'],
                     'email' => $order['email'],
                     'phone' => $order['phone']
                 ],
