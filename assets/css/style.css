@@ -31,6 +31,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 70px;
 }
 
 .logo a {
@@ -49,10 +50,23 @@ header {
     padding-bottom: 3px;
 }
 
+nav {
+    display: flex;
+    align-items: center;
+}
+
 nav ul {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 1.2rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: flex;
+    align-items: center;
 }
 
 nav a {
@@ -61,6 +75,7 @@ nav a {
     color: #333;
     font-weight: 500;
     transition: color 0.3s;
+    padding: 0.5rem 0.8rem;
 }
 
 nav a:hover, nav a.active {
@@ -70,7 +85,7 @@ nav a:hover, nav a.active {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .header-actions a {
