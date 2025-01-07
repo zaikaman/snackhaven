@@ -1,27 +1,27 @@
 <footer>
     <div class="footer-container">
-        <div class="contact-info">
+        <div class="footer-section">
             <h3>Liên Hệ</h3>
             <p>Email: hotro@snackhaven.com</p>
             <p>Điện thoại: (123) 456-7890</p>
             <p>Địa chỉ: 123 Đường ABC, Thành phố XYZ</p>
         </div>
         
-        <div class="social-links">
+        <div class="footer-section">
             <h3>Theo Dõi Chúng Tôi</h3>
             <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
             </div>
         </div>
 
-        <div class="newsletter">
+        <div class="footer-section">
             <h3>Đăng Ký Nhận Ưu Đãi</h3>
-            <form class="subscribe-form">
+            <div class="subscribe-form">
                 <input type="email" placeholder="Nhập email của bạn">
                 <button type="submit">Đăng Ký</button>
-            </form>
+            </div>
         </div>
     </div>
     <div class="footer-bottom">
