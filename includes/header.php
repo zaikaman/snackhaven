@@ -102,6 +102,42 @@ if (!function_exists('isCurrentPage')) {
             margin-top: 10px;
         }
 
+        .cart-item-quantity button {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            background: #ff6b6b;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .cart-item-quantity button:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        /* Nút xóa */
+        .cart-item-quantity button:last-child {
+            background: #dc3545;
+            font-size: 16px;
+        }
+
+        .cart-item-quantity button:last-child:hover {
+            background: #c82333;
+        }
+
+        .cart-item-quantity span {
+            min-width: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
         .quantity-btn {
             background: #ff6b6b;
             color: white;
@@ -516,4 +552,70 @@ function checkout() {
 
 // Close cart when clicking outside
 document.getElementById('cartOverlay').addEventListener('click', toggleCart);
+
+// Hàm cập nhật hiển thị giỏ hàng
+function updateCartDisplay() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartBadge = document.getElementById('cartBadge');
+
+    // Cập nhật số lượng trên badge
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    cartBadge.textContent = totalItems;
+
+    // Cập nhật nội dung giỏ hàng
+    cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="${item.image_url}" alt="${item.name}">
+            <div class="cart-item-details">
+                <h4>${item.name}</h4>
+                <p>${new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(item.price)}</p>
+                <div class="cart-item-quantity">
+                    <button onclick="updateQuantity(${item.id}, -1)">-</button>
+                    <span>${item.quantity}</span>
+                    <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                    <button onclick="removeItem(${item.id})">&times;</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    // Cập nhật tổng tiền
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    cartTotal.textContent = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(total);
+}
+
+// Hàm cập nhật số lượng sản phẩm
+function updateQuantity(productId, change) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const item = cart.find(item => item.id === productId);
+    if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+            cart = cart.filter(item => item.id !== productId);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartDisplay();
+    }
+}
+
+// Hàm xóa sản phẩm khỏi giỏ hàng
+function removeItem(productId) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart = cart.filter(item => item.id !== productId);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartDisplay();
+}
+
+// Khởi tạo giỏ hàng khi trang được load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartDisplay();
+});
 </script> 
