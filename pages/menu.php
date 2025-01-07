@@ -126,12 +126,49 @@ require_once __DIR__ . '/../includes/config.php';
 .product-link {
     text-decoration: none;
 }
+
+/* Loading Spinner */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #ff6b6b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.menu-container {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.menu-container.loaded {
+    opacity: 1;
+}
 </style>
 
-<div class="main-content">
-    <div class="container">
-        <h1 class="text-center mb-4">Thực Đơn</h1>
-        
+<div class="container main-content">
+    <h1 class="text-center mb-5">Thực Đơn</h1>
+    
+    <!-- Loading Spinner -->
+    <div class="loading-container" id="loadingSpinner">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Menu Content -->
+    <div class="menu-container" id="menuContent" style="display: none;">
         <!-- Danh mục -->
         <div class="categories mb-4">
             <ul class="nav nav-pills justify-content-center" id="menuTab" role="tablist">
@@ -216,7 +253,20 @@ const PRODUCTS_PER_PAGE = 9;
 function loadProducts(categoryId, page) {
     const baseUrl = window.location.origin + '/snackhaven/';
     const url = `${baseUrl}api/get_products.php?category_id=${categoryId}&page=${page}&per_page=${PRODUCTS_PER_PAGE}`;
-    console.log('Fetching products from:', url);
+    
+    // Hiển thị loading spinner trong container sản phẩm
+    const container = document.getElementById(`products-${categoryId}`);
+    container.innerHTML = `
+        <div class="col-12">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    `;
+    
+    // Ẩn phân trang khi đang loading
+    const paginationContainer = document.getElementById(`pagination-${categoryId}`);
+    paginationContainer.style.display = 'none';
 
     fetch(url)
         .then(response => {
@@ -229,22 +279,23 @@ function loadProducts(categoryId, page) {
             console.log('API Response:', data);
             if (!data.success) {
                 console.error('API Error:', data.error);
-                const container = document.getElementById(`products-${categoryId}`);
                 container.innerHTML = `<div class="col-12 text-center py-5">
                     <h3 class="text-danger">Có lỗi xảy ra: ${data.error}</h3>
                 </div>`;
                 return;
             }
             displayProducts(categoryId, data.products);
+            // Hiển thị lại phân trang sau khi load xong
+            paginationContainer.style.display = 'block';
             displayPagination(categoryId, data.total_pages, page);
         })
         .catch(error => {
             console.error('Error:', error);
-            const container = document.getElementById(`products-${categoryId}`);
             container.innerHTML = `<div class="col-12 text-center py-5">
                 <h3 class="text-danger">Không thể tải sản phẩm. Vui lòng thử lại sau.</h3>
                 <p>${error.message}</p>
             </div>`;
+            paginationContainer.style.display = 'none';
         });
 }
 
@@ -443,5 +494,21 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo giỏ hàng
     updateCartDisplay();
+});
+
+// Simulate loading time and show/hide elements
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const menuContent = document.getElementById('menuContent');
+    
+    // Show content after a short delay (you can remove this setTimeout if you want it instant)
+    setTimeout(() => {
+        loadingSpinner.style.display = 'none';
+        menuContent.style.display = 'block';
+        // Add a small delay before adding the 'loaded' class for smooth fade in
+        setTimeout(() => {
+            menuContent.classList.add('loaded');
+        }, 50);
+    }, 800); // Adjust this time as needed
 });
 </script> 

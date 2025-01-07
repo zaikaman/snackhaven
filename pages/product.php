@@ -8,8 +8,8 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 <style>
 .product-detail {
     font-family: "Times New Roman", Times, serif;
-    margin-top: 100px;
-    padding: 30px 0;
+    margin-top: 10px;
+    padding: 20px 0;
 }
 
 .product-image {
@@ -103,11 +103,13 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 /* Ẩn mũi tên tăng giảm mặc định của input number */
 .quantity-input::-webkit-outer-spin-button,
 .quantity-input::-webkit-inner-spin-button {
+    appearance: none;
     -webkit-appearance: none;
     margin: 0;
 }
 
 .quantity-input[type=number] {
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 
@@ -221,49 +223,78 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         font-size: 1.5rem;
     }
 }
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #ff6b6b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 
-<div class="product-detail">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo url(); ?>">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="<?php echo url('menu'); ?>">Thực đơn</a></li>
-                <li class="breadcrumb-item active product-category-text" aria-current="page"></li>
-            </ol>
-        </nav>
+<!-- Loading Spinner -->
+<div class="loading-container" id="loadingSpinner">
+    <div class="loading-spinner"></div>
+</div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <img src="" alt="" class="product-image" id="productImage">
-            </div>
-            <div class="col-md-6 product-info">
-                <div class="product-category"></div>
-                <h1 class="product-title"></h1>
-                <p class="product-description"></p>
-                <div class="product-price"></div>
-                
-                <div class="quantity-control">
-                    <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1" max="10" id="quantity">
-                    <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+<!-- Product Content -->
+<div id="productContent" style="display: none;">
+    <div class="product-detail">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="<?php echo url(); ?>">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo url('menu'); ?>">Thực đơn</a></li>
+                    <li class="breadcrumb-item active product-category-text" aria-current="page"></li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="" alt="" class="product-image" id="productImage">
                 </div>
-                
-                <button class="add-to-cart-btn">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Thêm vào giỏ hàng
-                </button>
+                <div class="col-md-6 product-info">
+                    <div class="product-category"></div>
+                    <h1 class="product-title"></h1>
+                    <p class="product-description"></p>
+                    <div class="product-price"></div>
+                    
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                        <input type="number" class="quantity-input" value="1" min="1" max="10" id="quantity">
+                        <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                    </div>
+                    
+                    <button class="add-to-cart-btn">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Thêm vào giỏ hàng
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Sản phẩm liên quan -->
-<div class="related-products">
-    <div class="container">
-        <h2>Sản phẩm liên quan</h2>
-        <div class="row" id="relatedProducts"></div>
+    <!-- Sản phẩm liên quan -->
+    <div class="related-products">
+        <div class="container">
+            <h2>Sản phẩm liên quan</h2>
+            <div class="row" id="relatedProducts"></div>
+        </div>
     </div>
 </div>
 
@@ -295,13 +326,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadProductDetails(productId) {
     const baseUrl = window.location.origin + '/snackhaven/';
+    
+    // Hiển thị loading spinner và ẩn nội dung
+    document.getElementById('loadingSpinner').style.display = 'flex';
+    document.getElementById('productContent').style.display = 'none';
+    
     fetch(`${baseUrl}api/get_product.php?id=${productId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Đảm bảo tất cả dữ liệu được hiển thị trước
                 displayProductDetails(data.product);
                 displayRelatedProducts(data.related_products);
+                
+                // Đợi một chút để đảm bảo hình ảnh đã được tải
+                const productImage = document.getElementById('productImage');
+                productImage.onload = function() {
+                    // Ẩn loading spinner và hiển thị nội dung chỉ khi hình ảnh đã tải xong
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('productContent').style.display = 'block';
+                };
+                
+                // Fallback nếu hình ảnh lỗi hoặc không tải được
+                productImage.onerror = function() {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    document.getElementById('productContent').style.display = 'block';
+                };
             } else {
+                document.getElementById('loadingSpinner').style.display = 'none';
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi!',
@@ -311,6 +363,7 @@ function loadProductDetails(productId) {
         })
         .catch(error => {
             console.error('Error:', error);
+            document.getElementById('loadingSpinner').style.display = 'none';
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi!',
@@ -390,5 +443,16 @@ document.querySelector('.add-to-cart-btn').addEventListener('click', function() 
         showConfirmButton: false,
         timer: 1500
     });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const productContent = document.getElementById('productContent');
+    
+    // Hiển thị nội dung sau khi tải xong
+    setTimeout(() => {
+        loadingSpinner.style.display = 'none';
+        productContent.style.display = 'block';
+    }, 3500);
 });
 </script> 
