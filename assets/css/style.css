@@ -8,6 +8,11 @@
     box-sizing: border-box;
 }
 
+/* Reset link styles */
+a {
+    text-decoration: none;
+}
+
 body {
     font-family: "Times New Roman", Times, serif;
     line-height: 1.6;
@@ -205,6 +210,14 @@ nav a:hover, nav a.active {
     margin-bottom: 1.5rem;
 }
 
+.promotion .promo-content a.view-deals,
+.promotion .promo-content a.view-deals:hover,
+.promotion .promo-content a.view-deals:focus,
+.promotion .promo-content a.view-deals:active {
+    text-decoration: none !important;
+    color: white;
+}
+
 .view-deals {
     background-color: #ff4d4d;
     color: white;
@@ -212,11 +225,13 @@ nav a:hover, nav a.active {
     padding: 0.8rem 1.5rem;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
 .view-deals:hover {
     background-color: #ff3333;
+    color: white;
 }
 
 /* Testimonials */

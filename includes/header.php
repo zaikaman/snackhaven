@@ -1,14 +1,18 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/url_config.php';
 
 // Hàm kiểm tra trang hiện tại
-function isCurrentPage($page) {
-    $current_page = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
-    if ($page === '' && $current_page === 'index') {
-        return true;
+if (!function_exists('isCurrentPage')) {
+    function isCurrentPage($page) {
+        $current_page = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
+        if ($page === '' && $current_page === 'index') {
+            return true;
+        }
+        return $current_page === $page;
     }
-    return $current_page === $page;
 }
 ?>
 <!DOCTYPE html>

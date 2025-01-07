@@ -142,7 +142,7 @@ require_once 'includes/url_config.php';
     </style>
 </head>
 <body>
-    <?php include 'includes/header.php'; ?>
+    
 
     <div class="about-hero">
         <h1>Câu Chuyện Của SnackHaven</h1>

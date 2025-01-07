@@ -29,7 +29,7 @@ require_once __DIR__ . '/../includes/config.php';
 <section class="promotion">
     <div class="promo-content">
         <h2>Giảm 50% Cho Tất Cả Các Combo Trong Tuần Này!</h2>
-        <button class="view-deals">Xem Ưu Đãi</button>
+        <a href="<?php echo url('menu'); ?>" class="view-deals" style="text-decoration: none;">Xem Thực Đơn</a>
     </div>
 </section>
 

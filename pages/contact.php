@@ -9,7 +9,7 @@
     .contact-hero {
         text-align: center;
         margin-bottom: 30px;
-        margin-top: 80px;
+        margin-top: 0px;
         background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1577563908411-5077b6dc7624');
         background-size: cover;
         background-position: center;
