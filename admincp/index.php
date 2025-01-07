@@ -70,50 +70,11 @@ $stmt->bindParam(':start_date', $start_date);
 $stmt->bindParam(':end_date', $end_date);
 $stmt->execute();
 $totalRevenue = $stmt->fetch()['total_revenue'] ?? 0;
-?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Snack Haven</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">Snack Haven Admin</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="products.php">Sản phẩm</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="orders.php">Đơn hàng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="users.php">Người dùng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="messages.php">Tin nhắn</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Đăng xuất</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+$page_title = 'Dashboard';
+$current_page = 'dashboard';
+require_once 'includes/header.php';
+?>
 
     <div class="container-fluid py-4">
         <!-- Thống kê tổng quan -->
@@ -249,26 +210,22 @@ $totalRevenue = $stmt->fetch()['total_revenue'] ?? 0;
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>STT</th>
-                                <th>Tên sản phẩm</th>
+                                <th>Sản phẩm</th>
                                 <th>Danh mục</th>
-                                <th>Giá</th>
-                                <th>Số lượng đã bán</th>
+                                <th>Số lượng bán</th>
                                 <th>Doanh thu</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($topProducts as $index => $product): ?>
+                            <?php foreach($topProducts as $product): ?>
                             <tr>
-                                <td><?php echo $index + 1; ?></td>
                                 <td><?php echo $product['name']; ?></td>
                                 <td><?php echo $product['category_name']; ?></td>
-                                <td><?php echo number_format($product['price'], 0, ',', '.'); ?> VNĐ</td>
-                                <td><?php echo $product['total_quantity'] ?? 0; ?></td>
-                                <td><?php echo number_format($product['total_revenue'] ?? 0, 0, ',', '.'); ?> VNĐ</td>
+                                <td><?php echo number_format($product['total_quantity']); ?></td>
+                                <td><?php echo number_format($product['total_revenue'], 0, ',', '.'); ?> VNĐ</td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>

@@ -375,6 +375,12 @@ function updateCartDisplay() {
     const cartTotal = document.getElementById('cartTotal');
     const cartBadge = document.getElementById('cartBadge');
 
+    // Kiểm tra xem các phần tử có tồn tại không
+    if (!cartItems || !cartTotal || !cartBadge) {
+        console.warn('Một số phần tử DOM cần thiết không tồn tại');
+        return;
+    }
+
     // Cập nhật số lượng trên badge
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalItems;
@@ -432,5 +438,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoryId = firstCategoryTab.id.split('-')[1];
         loadProducts(categoryId, 1);
     }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo giỏ hàng
+    updateCartDisplay();
 });
 </script> 
