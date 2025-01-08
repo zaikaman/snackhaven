@@ -8,24 +8,118 @@ $priceRange = isset($_GET['priceRange']) ? $_GET['priceRange'] : '';
 ?>
 
 <style>
-.search-container {
-    background: #f8f9fa;
-    border-radius: 10px;
+/* Style cho form tìm kiếm */
+.search-form-container {
+    background: #fff;
     padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
 }
 
-.search-title {
-    font-family: "Times New Roman", Times, serif;
+.search-form-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.search-form-header i {
+    color: #ff6b6b;
+    font-size: 1.2rem;
+}
+
+.search-form-header span {
+    font-size: 1.1rem;
     color: #333;
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-    border-bottom: 2px solid #ff6b6b;
-    padding-bottom: 10px;
+}
+
+.search-form-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 15px;
+    align-items: start;
+}
+
+.form-group {
+    margin: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 2px rgba(255,107,107,0.1);
+    outline: none;
+}
+
+.btn-reset, .btn-filter {
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    margin-top: 32px;
+}
+
+.btn-reset {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #666;
+}
+
+.btn-reset:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+    background: #fff;
+}
+
+.btn-filter {
+    background: #ff6b6b;
+    border: none;
+    color: white;
+}
+
+.btn-filter:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 992px) {
+    .search-form-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-form-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-reset, .btn-filter {
+        width: 100%;
+    }
 }
 
 .filter-section {
@@ -229,14 +323,6 @@ $priceRange = isset($_GET['priceRange']) ? $_GET['priceRange'] : '';
 }
 
 @media (max-width: 768px) {
-    .search-container {
-        padding: 15px;
-    }
-    
-    .card-img-top {
-        height: 160px;
-    }
-    
     .btn-filter, .btn-reset {
         width: 100%;
         margin-bottom: 10px;
@@ -245,24 +331,22 @@ $priceRange = isset($_GET['priceRange']) ? $_GET['priceRange'] : '';
 </style>
 
 <div class="container-fluid py-4">
-    <div class="search-container">
-        <h4 class="search-title">Tìm kiếm sản phẩm</h4>
-        
+    <div class="search-form-container">
         <?php if (!empty($keyword)): ?>
-            <div class="search-keyword">
-                <i class="fas fa-search me-2"></i>
-                Kết quả tìm kiếm cho "<strong><?php echo htmlspecialchars($keyword); ?></strong>"
+            <div class="search-form-header">
+                <i class="fas fa-search"></i>
+                <span>Kết quả tìm kiếm cho "<strong><?php echo htmlspecialchars($keyword); ?></strong>"</span>
             </div>
         <?php endif; ?>
 
-        <div class="filter-section">
-            <form id="searchForm" class="row g-3">
-                <?php if (!empty($keyword)): ?>
-                    <input type="hidden" name="keyword" value="<?php echo htmlspecialchars($keyword); ?>">
-                <?php endif; ?>
+        <form id="searchForm">
+            <?php if (!empty($keyword)): ?>
+                <input type="hidden" name="keyword" value="<?php echo htmlspecialchars($keyword); ?>">
+            <?php endif; ?>
 
-                <div class="col-md-6">
-                    <label for="category" class="form-label">Danh mục</label>
+            <div class="search-form-content">
+                <div class="form-group">
+                    <label for="category">Danh mục</label>
                     <select class="form-select" id="category" name="category">
                         <option value="">Tất cả danh mục</option>
                         <?php
@@ -276,8 +360,8 @@ $priceRange = isset($_GET['priceRange']) ? $_GET['priceRange'] : '';
                     </select>
                 </div>
 
-                <div class="col-md-6">
-                    <label for="priceRange" class="form-label">Khoảng giá</label>
+                <div class="form-group">
+                    <label for="priceRange">Khoảng giá</label>
                     <select class="form-select" id="priceRange" name="priceRange">
                         <option value="">Tất cả giá</option>
                         <option value="0-50000" <?php echo $priceRange == '0-50000' ? 'selected' : ''; ?>>Dưới 50.000đ</option>
@@ -288,16 +372,17 @@ $priceRange = isset($_GET['priceRange']) ? $_GET['priceRange'] : '';
                     </select>
                 </div>
 
-                <div class="col-12 text-end">
-                    <a href="<?php echo url('search' . (!empty($keyword) ? '?keyword=' . urlencode($keyword) : '')); ?>" class="btn btn-reset me-2">
-                        <i class="fas fa-undo-alt me-1"></i> Đặt lại
-                    </a>
-                    <button type="submit" class="btn btn-filter">
-                        <i class="fas fa-filter me-1"></i> Lọc kết quả
-                    </button>
-                </div>
-            </form>
-        </div>
+                <a href="<?php echo url('search' . (!empty($keyword) ? '?keyword=' . urlencode($keyword) : '')); ?>" class="btn btn-reset">
+                    <i class="fas fa-undo-alt"></i>
+                    Đặt lại
+                </a>
+
+                <button type="submit" class="btn btn-filter">
+                    <i class="fas fa-filter"></i>
+                    Lọc kết quả
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Hiển thị kết quả -->
