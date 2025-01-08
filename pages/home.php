@@ -14,10 +14,10 @@ require_once __DIR__ . '/../includes/config.php';
         try {
             $stmt = $pdo->query("SELECT * FROM categories ORDER BY id");
             while($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo '<div class="category-item">';
+                echo '<a href="' . url('menu') . '?category=' . $category['id'] . '" class="category-item">';
                 echo '<img src="' . htmlspecialchars($category['image_url']) . '" alt="' . htmlspecialchars($category['name']) . '">';
                 echo '<h3>' . htmlspecialchars($category['name']) . '</h3>';
-                echo '</div>';
+                echo '</a>';
             }
         } catch(PDOException $e) {
             echo "Error: " . $e->getMessage();

@@ -511,4 +511,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }, 800); // Adjust this time as needed
 });
+
+// Hàm lấy tham số từ URL
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// Khi trang tải xong
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra xem có tham số category không
+    var categoryId = getUrlParameter('category');
+    if (categoryId) {
+        // Tìm tab tương ứng
+        var tab = document.querySelector('#cat-' + categoryId + '-tab');
+        if (tab) {
+            // Kích hoạt tab
+            var tabTrigger = new bootstrap.Tab(tab);
+            tabTrigger.show();
+            // Load sản phẩm của danh mục
+            loadProducts(categoryId, 1);
+        }
+    } else {
+        // Nếu không có category, load danh mục đầu tiên
+        var firstTab = document.querySelector('#menuTab .nav-link');
+        if (firstTab) {
+            var categoryId = firstTab.id.replace('cat-', '').replace('-tab', '');
+            loadProducts(categoryId, 1);
+        }
+    }
+});
 </script> 
