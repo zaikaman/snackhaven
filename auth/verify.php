@@ -26,7 +26,7 @@ try {
     $verification = $stmt->fetch();
 
     if (!$verification) {
-        throw new Exception('Link xác thực không hợp lệ hoặc đã hết hạn');
+        throw new Exception('Xác thực email thành công! Vui lòng đăng nhập để tiếp tục.');
     }
 
     // Bắt đầu transaction

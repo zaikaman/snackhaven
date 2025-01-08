@@ -66,14 +66,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Hiển thị thông báo
+// Hiển thị thông báo sử dụng SweetAlert2
 function showAlert(type, message) {
-    const alertBox = document.querySelector('.alert');
-    alertBox.textContent = message;
-    alertBox.className = `alert alert-${type}`;
-    alertBox.style.display = 'block';
-
-    setTimeout(() => {
-        alertBox.style.display = 'none';
-    }, 5000);
+    Swal.fire({
+        icon: type,
+        title: message,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
 } 
