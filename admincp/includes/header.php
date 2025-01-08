@@ -27,6 +27,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>" href="categories.php">
+                                <i class="bi bi-grid"></i> Danh mục
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo $current_page === 'products' ? 'active' : ''; ?>" href="products.php">
                                 <i class="bi bi-box-seam"></i> Sản phẩm
                             </a>
