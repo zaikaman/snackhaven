@@ -1,8 +1,0 @@
-.env
-vendor/
-.DS_Store
-/vendor/
-composer.phar
-.env.*.php
-.env.php
-*.log

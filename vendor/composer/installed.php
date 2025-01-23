@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'snackhaven/web',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'e506cab91f53e5f21dfe08ac0903079ae1e8da9e',
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        'heroku/heroku-buildpack-php' => array(
+            'pretty_version' => 'v261',
+            'version' => '261.0.0.0',
+            'reference' => '90e575937dd57c41cf7c3daa2fcfdf71cd123323',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../heroku/heroku-buildpack-php',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v6.9.3',
+            'version' => '6.9.3.0',
+            'reference' => '2f5c94fe7493efc213f643c23b1b1c249d40f47e',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'snackhaven/web' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'e506cab91f53e5f21dfe08ac0903079ae1e8da9e',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);
