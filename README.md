@@ -27,25 +27,9 @@ SnackHaven là một website bán đồ ăn vặt được xây dựng bằng PH
    C:\xampp\htdocs\snackhaven
    ```
 
-3. Tạo file `.env` trong thư mục gốc của dự án với nội dung sau:
-   ```
-   DB_URL=your_database_url
+3. Khởi động dịch vụ Apache trong XAMPP Control Panel
 
-   # SMTP Configuration
-   SMTP_HOST=smtp.gmail.com
-   SMTP_USERNAME=your_email
-   SMTP_PASSWORD=your_app_password
-   SMTP_PORT=587
-
-   # Environment Configuration
-   ENVIRONMENT=local
-
-   IMGBB_API_KEY=your_imgbb_api_key
-   ```
-
-4. Khởi động các dịch vụ Apache và MySQL trong XAMPP Control Panel
-
-5. Truy cập website qua địa chỉ:
+4. Truy cập website qua địa chỉ:
    ```
    http://localhost/snackhaven
    ```
@@ -72,8 +56,6 @@ snackhaven/
 ```
 
 ## Lưu ý bảo mật
-
-- Không được commit file `.env` lên repository
 - Bảo vệ thư mục `admincp/` khỏi truy cập trái phép
 - Thường xuyên cập nhật các thành phần để đảm bảo an toàn
 
