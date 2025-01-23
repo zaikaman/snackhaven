@@ -26,6 +26,197 @@ if (!function_exists('isCurrentPage')) {
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
     <style>
+        /* Reset header styles */
+        .header-wrapper {
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            height: 70px;
+        }
+
+        /* Logo styles */
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #ff6b6b;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .logo i {
+            font-size: 1.6rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Search container */
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.7rem 1.2rem;
+            border: 1px solid #eee;
+            border-radius: 50px;
+            font-size: 0.95rem;
+        }
+
+        .search-btn {
+            padding: 0.7rem 1.5rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Header actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .login-btn {
+            padding: 0.7rem 1.5rem;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .header-container {
+                height: auto;
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                order: 3;
+            }
+
+            .search-container {
+                order: 2;
+                max-width: none;
+                margin: 0;
+                flex: none;
+                width: calc(100% - 120px); /* Trừ đi width của logo và nút menu */
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+                order: 4;
+            }
+
+            nav.active {
+                display: block;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            nav a {
+                padding: 1rem;
+                border-top: 1px solid #eee;
+            }
+
+            .header-actions {
+                width: 100%;
+                order: 5;
+                justify-content: center;
+                padding: 1rem 0;
+                border-top: 1px solid #eee;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                padding: 0.6rem;
+            }
+
+            .search-container {
+                width: calc(100% - 100px);
+            }
+
+            .search-input {
+                padding: 0.6rem 1rem;
+            }
+
+            .search-btn {
+                padding: 0.6rem 1rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .login-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
         /* Cart Modal Styles */
         .cart-modal {
             position: fixed;
@@ -202,212 +393,6 @@ if (!function_exists('isCurrentPage')) {
             margin-right: 15px;
         }
 
-        /* Cart Modal Styles */
-        .header-wrapper {
-            width: 100%;
-            background-color: #ffffff;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        @media (max-width: 1440px) {
-            .header-container {
-                padding: 1rem;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .search-container {
-                max-width: 400px;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .search-container {
-                max-width: 300px;
-                margin: 0 1rem;
-            }
-            
-            nav ul {
-                gap: 1rem;
-            }
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 1.6rem;
-            font-weight: 600;
-            text-decoration: none;
-            color: #ff6b6b;
-            transition: transform 0.2s;
-            margin-left: -1rem;
-        }
-
-        @media (max-width: 1440px) {
-            .logo {
-                margin-left: -0.5rem;
-            }
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .search-container {
-            flex: 1;
-            max-width: 600px;
-            margin: 0 2rem;
-        }
-
-        .search-form {
-            display: flex;
-            gap: 0.5rem;
-            position: relative;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 0.8rem 1.2rem;
-            border: 2px solid #f0f0f0;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            background: #f8f8f8;
-        }
-
-        .search-input:focus {
-            border-color: #ff6b6b;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(255,107,107,0.1);
-            outline: none;
-        }
-
-        .search-btn {
-            padding: 0.8rem 1.5rem;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .search-btn:hover {
-            background: #ff5252;
-            transform: translateY(-1px);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        nav ul {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #444;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-            position: relative;
-            padding: 0.5rem;
-        }
-
-        nav a i {
-            font-size: 1.3rem;
-            transition: transform 0.2s;
-        }
-
-        nav a span {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-
-        nav a:hover {
-            color: #ff6b6b;
-        }
-
-        nav a:hover i {
-            transform: translateY(-2px);
-        }
-
-        nav a.active {
-            color: #ff6b6b;
-        }
-
-        nav a.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 2px;
-            background: #ff6b6b;
-            border-radius: 2px;
-        }
-
-        .header-actions a {
-            text-decoration: none;
-            color: #444;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn {
-            padding: 0.8rem 1.8rem;
-            background: #ff6b6b;
-            color: white !important;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover {
-            background: #ff5252;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255,107,107,0.2);
-        }
-
-        .cart-icon-btn {
-            position: relative;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            margin-right: 1rem;
-            transition: transform 0.2s;
-        }
-
         .cart-icon-btn:hover {
             transform: scale(1.1);
         }
@@ -433,35 +418,10 @@ if (!function_exists('isCurrentPage')) {
 <body>
 <header class="header-wrapper">
     <div class="header-container">
-        <div class="logo">
-            <a href="<?php echo url(); ?>">
-                <i class="fas fa-hamburger logo-icon"></i>
-                <span>SnackHaven</span>
-            </a>
-        </div>
-        
-        <nav>
-            <ul>
-                <li>
-                    <a href="<?php echo url('menu'); ?>" class="<?php echo isCurrentPage('menu') ? 'active' : ''; ?>" data-tooltip="Thực đơn">
-                        <i class="fas fa-utensils"></i>
-                        <span>Thực đơn</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo url('about'); ?>" class="<?php echo isCurrentPage('about') ? 'active' : ''; ?>" data-tooltip="Giới thiệu">
-                        <i class="fas fa-info-circle"></i>
-                        <span>Giới thiệu</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo url('contact'); ?>" class="<?php echo isCurrentPage('contact') ? 'active' : ''; ?>" data-tooltip="Liên hệ">
-                        <i class="fas fa-envelope"></i>
-                        <span>Liên hệ</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <a href="<?php echo BASE_URL; ?>" class="logo">
+            <i class="fas fa-utensils"></i>
+            SnackHaven
+        </a>
 
         <div class="search-container">
             <form action="<?php echo url('search'); ?>" method="GET" class="search-form">
@@ -471,7 +431,34 @@ if (!function_exists('isCurrentPage')) {
                 </button>
             </form>
         </div>
-        
+
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <nav>
+            <ul>
+                <li>
+                    <a href="<?php echo url('menu'); ?>" class="<?php echo isCurrentPage('menu') ? 'active' : ''; ?>">
+                        <i class="fas fa-utensils"></i>
+                        <span>Thực đơn</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo url('about'); ?>" class="<?php echo isCurrentPage('about') ? 'active' : ''; ?>">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Giới thiệu</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo url('contact'); ?>" class="<?php echo isCurrentPage('contact') ? 'active' : ''; ?>">
+                        <i class="fas fa-envelope"></i>
+                        <span>Liên hệ</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
         <div class="header-actions">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <button class="cart-icon-btn" onclick="toggleCart()">
@@ -482,7 +469,7 @@ if (!function_exists('isCurrentPage')) {
                     <i class="fas fa-user"></i>
                     <?php echo htmlspecialchars($_SESSION['username']); ?>
                 </a>
-                <a href="auth/logout.php" id="logout-btn" class="nav-link">
+                <a href="auth/logout.php" id="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             <?php else: ?>
@@ -617,5 +604,14 @@ function removeItem(productId) {
 // Khởi tạo giỏ hàng khi trang được load
 document.addEventListener('DOMContentLoaded', function() {
     updateCartDisplay();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const nav = document.querySelector('nav');
+
+    mobileMenuBtn.addEventListener('click', function() {
+        nav.classList.toggle('active');
+    });
 });
 </script> 
