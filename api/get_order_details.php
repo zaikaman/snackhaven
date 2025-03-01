@@ -51,7 +51,19 @@ try {
 
     echo json_encode([
         'success' => true,
-        'order' => $order,
+        'order' => [
+            'id' => $order['id'],
+            'total_price' => $order['total_price'],
+            'status' => $order['status'],
+            'status_text' => match($order['status']) {
+                'pending' => 'Chưa xác nhận',
+                'confirmed' => 'Đã xác nhận',
+                'delivered' => 'Đã giao',
+                'cancelled' => 'Đã hủy',
+                default => $order['status']
+            },
+            'created_at' => $order['created_at']
+        ],
         'items' => $items
     ]);
 

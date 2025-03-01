@@ -31,7 +31,7 @@ SnackHaven là một website bán đồ ăn vặt được xây dựng bằng PH
 
 4. Truy cập website qua địa chỉ:
    ```
-   http://localhost/snackhaven
+   https://localhost/snackhaven
    ```
 
 ## Cấu trúc thư mục

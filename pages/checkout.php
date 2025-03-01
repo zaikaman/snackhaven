@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
+require_once 'includes/vietnam_cities.php';
 
 // Kiểm tra đăng nhập
 check_login();
@@ -38,8 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Tạo đơn hàng
         $createOrderStmt = $pdo->prepare("
-            INSERT INTO orders (user_id, total_price, status, created_at)
-            VALUES (?, ?, 'pending', NOW())
+            INSERT INTO orders (
+                user_id, 
+                total_price, 
+                status, 
+                shipping_city,
+                shipping_district,
+                shipping_address,
+                created_at
+            )
+            VALUES (?, ?, 'pending', ?, ?, ?, NOW())
         ");
 
         // Tính tổng tiền và chuẩn bị dữ liệu cho order_items
@@ -56,7 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $createOrderStmt->execute([
             $_SESSION['user_id'],
-            $totalPrice
+            $totalPrice,
+            $_POST['shipping_city'],
+            $_POST['shipping_district'],
+            $_POST['shipping_address']
         ]);
 
         $orderId = $pdo->lastInsertId();
@@ -332,6 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="checkout-content">
         <div class="checkout-form">
             <form method="POST" id="checkoutForm">
+                <input type="hidden" name="cart_data" id="cart_data">
                 <div class="form-section">
                     <h2>Thông tin giao hàng</h2>
                     
@@ -363,9 +376,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="address">Địa chỉ giao hàng<span class="required">*</span></label>
-                        <textarea id="address" name="address" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    <div class="shipping-info">
+                        <h2>Thông tin giao hàng</h2>
+                        
+                        <?php if($user['user_city'] && $user['user_district'] && $user['user_address']): ?>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="address_option" id="use_account_address" value="account_address" checked>
+                                <label class="form-check-label" for="use_account_address">
+                                    Sử dụng địa chỉ tài khoản
+                                </label>
+                                <div class="existing-address mt-2 ps-4">
+                                    <p class="mb-1">
+                                        <?php echo htmlspecialchars($user['user_address']); ?><br>
+                                        <?php echo htmlspecialchars($user['user_district']); ?>, <?php echo htmlspecialchars($user['user_city']); ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="address_option" id="use_new_address" value="new_address">
+                                <label class="form-check-label" for="use_new_address">
+                                    Sử dụng địa chỉ khác
+                                </label>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <div id="new_address_form" <?php echo ($user['user_city'] && $user['user_district'] && $user['user_address']) ? 'style="display: none;"' : ''; ?>>
+                            <div class="mb-3">
+                                <label for="shipping_city" class="form-label">Thành phố</label>
+                                <select class="form-select" id="shipping_city" name="shipping_city" required>
+                                    <option value="">Chọn thành phố</option>
+                                    <?php foreach(array_keys($vietnam_cities) as $city): ?>
+                                        <option value="<?php echo $city; ?>" <?php echo ($user['user_city'] == $city) ? 'selected' : ''; ?>>
+                                            <?php echo $city; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="shipping_district" class="form-label">Quận/Huyện</label>
+                                <select class="form-select" id="shipping_district" name="shipping_district" required>
+                                    <option value="">Chọn quận/huyện</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="shipping_address" class="form-label">Địa chỉ cụ thể</label>
+                                <input type="text" class="form-control" id="shipping_address" name="shipping_address" value="<?php echo htmlspecialchars($user['user_address'] ?? ''); ?>">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -416,94 +477,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function displayOrderSummary() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const orderSummary = document.getElementById('orderSummary');
+    const cartDataInput = document.getElementById('cart_data');
     let html = '';
     let total = 0;
 
-    cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        html += `
-            <div class="order-item">
-                <div class="order-item-details">
-                    <img src="${item.image_url}" alt="${item.name}" class="order-item-image">
-                    <div>
-                        <div class="order-item-name">${item.name}</div>
-                        <div class="order-item-quantity">Số lượng: ${item.quantity}</div>
+    if (cart.length === 0) {
+        html = '<div class="alert alert-info">Giỏ hàng của bạn đang trống</div>';
+        document.querySelector('.place-order-btn').disabled = true;
+    } else {
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            html += `
+                <div class="order-item">
+                    <div class="order-item-details">
+                        <img src="${item.image_url}" alt="${item.name}" class="order-item-image">
+                        <div>
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-quantity">Số lượng: ${item.quantity}</div>
+                        </div>
+                    </div>
+                    <div class="order-item-price">
+                        ${new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(itemTotal)}
                     </div>
                 </div>
-                <div class="order-item-price">
-                    ${new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                    }).format(itemTotal)}
-                </div>
+            `;
+        });
+
+        html += `
+            <div class="order-total">
+                <span>Tổng cộng:</span>
+                <span>${new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(total)}</span>
             </div>
         `;
-    });
 
-    html += `
-        <div class="order-total">
-            <span>Tổng cộng:</span>
-            <span>${new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-            }).format(total)}</span>
-        </div>
-    `;
+        // Lưu dữ liệu giỏ hàng vào input hidden
+        cartDataInput.value = JSON.stringify(cart);
+    }
 
     orderSummary.innerHTML = html;
 }
 
-// Kiểm tra giỏ hàng trống
-function checkEmptyCart() {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    if (cart.length === 0) {
-        Swal.fire({
-            title: 'Giỏ hàng trống',
-            text: 'Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán',
-            icon: 'warning'
-        }).then(() => {
-            window.location.href = '<?php echo url("menu"); ?>';
-        });
-        return false;
-    }
-    return true;
-}
-
-// Validate form trước khi submit
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    if (!checkEmptyCart()) {
-        return;
-    }
-
-    // Thêm cart data vào form trước khi submit
-    const cart = localStorage.getItem('cart');
-    const cartInput = document.createElement('input');
-    cartInput.type = 'hidden';
-    cartInput.name = 'cart_data';
-    cartInput.value = cart;
-    this.appendChild(cartInput);
-
-    this.submit();
-});
-
-// Hiển thị đơn hàng khi trang được load
+// Gọi hàm hiển thị khi trang được tải
 document.addEventListener('DOMContentLoaded', function() {
     displayOrderSummary();
-    checkEmptyCart();
 });
 
-// Hiển thị thông tin chuyển khoản khi chọn phương thức thanh toán
+// Xử lý chọn địa chỉ
+document.querySelectorAll('input[name="address_option"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const newAddressForm = document.getElementById('new_address_form');
+        if (this.value === 'new_address') {
+            newAddressForm.style.display = 'block';
+            // Reset form fields
+            document.getElementById('shipping_city').value = '';
+            document.getElementById('shipping_district').value = '';
+            document.getElementById('shipping_address').value = '';
+        } else {
+            newAddressForm.style.display = 'none';
+            // Fill form with account address
+            document.getElementById('shipping_city').value = '<?php echo addslashes($user['user_city'] ?? ''); ?>';
+            document.getElementById('shipping_district').value = '<?php echo addslashes($user['user_district'] ?? ''); ?>';
+            document.getElementById('shipping_address').value = '<?php echo addslashes($user['user_address'] ?? ''); ?>';
+        }
+    });
+});
+
+// Xử lý chọn thành phố
+document.getElementById('shipping_city').addEventListener('change', function() {
+    const city = this.value;
+    const districtSelect = document.getElementById('shipping_district');
+    
+    if (city) {
+        // Lấy danh sách quận/huyện từ API
+        fetch(`api/get_districts.php?city=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    data.districts.forEach(district => {
+                        const selected = district === '<?php echo addslashes($user['user_district'] ?? ''); ?>' ? 'selected' : '';
+                        districtSelect.innerHTML += `<option value="${district}" ${selected}>${district}</option>`;
+                    });
+                    districtSelect.disabled = false;
+                }
+            });
+    } else {
+        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+        districtSelect.disabled = true;
+    }
+});
+
+// Trigger city change event if city is pre-selected
+if (document.getElementById('shipping_city').value) {
+    document.getElementById('shipping_city').dispatchEvent(new Event('change'));
+}
+
+// Xử lý hiển thị thông tin ngân hàng
 document.querySelectorAll('input[name="payment_method"]').forEach(input => {
     input.addEventListener('change', function() {
         const bankInfo = document.getElementById('bankInfo');
         if (this.value === 'bank') {
             bankInfo.style.display = 'block';
-            // Tạo mã đơn hàng tạm thời
-            const orderCode = 'DH' + Date.now();
-            document.getElementById('orderCode').textContent = orderCode;
+            // Hiển thị số tiền cần chuyển khoản
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('orderCode').textContent = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(total);
         } else {
             bankInfo.style.display = 'none';
         }

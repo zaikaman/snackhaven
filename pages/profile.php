@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
+require_once 'includes/vietnam_cities.php';
 
 // Kiểm tra đăng nhập
 check_login();
@@ -8,20 +9,27 @@ check_login();
 $user = get_logged_user();
 
 // Xử lý cập nhật thông tin
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
     $phone = trim($_POST['phone']);
-    $address = trim($_POST['address']);
+    $userCity = trim($_POST['user_city']);
+    $userDistrict = trim($_POST['user_district']);
+    $userAddress = trim($_POST['user_address']);
     
     try {
         $updateStmt = $pdo->prepare("
             UPDATE users 
-            SET first_name = ?, last_name = ?, phone = ?, address = ?
+            SET first_name = ?, last_name = ?, phone = ?, 
+                user_city = ?, user_district = ?, user_address = ?
             WHERE id = ?
         ");
         
-        $updateStmt->execute([$firstName, $lastName, $phone, $address, $_SESSION['user_id']]);
+        $updateStmt->execute([
+            $firstName, $lastName, $phone,
+            $userCity, $userDistrict, $userAddress,
+            $_SESSION['user_id']
+        ]);
         
         // Hiển thị thông báo thành công
         $successMessage = "Cập nhật thông tin thành công!";
@@ -248,9 +256,19 @@ if (isset($_GET['order_id'])) {
     color: #856404;
 }
 
-.order-status.processed {
+.order-status.confirmed {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.order-status.delivered {
     background: #d4edda;
     color: #155724;
+}
+
+.order-status.cancelled {
+    background: #f8d7da;
+    color: #721c24;
 }
 
 .order-total {
@@ -384,13 +402,32 @@ if (isset($_GET['order_id'])) {
                     <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="address">Địa chỉ</label>
-                    <textarea id="address" name="address"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                <div class="form-group">
+                    <label for="user_city">Thành phố</label>
+                    <select class="form-select" id="user_city" name="user_city">
+                        <option value="">Chọn thành phố</option>
+                        <?php foreach(array_keys($vietnam_cities) as $city): ?>
+                            <option value="<?php echo $city; ?>" <?php echo ($user['user_city'] == $city) ? 'selected' : ''; ?>>
+                                <?php echo $city; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_district">Quận/Huyện</label>
+                    <select class="form-select" id="user_district" name="user_district">
+                        <option value="">Chọn quận/huyện</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_address">Địa chỉ cụ thể</label>
+                    <input type="text" id="user_address" name="user_address" value="<?php echo htmlspecialchars($user['user_address'] ?? ''); ?>">
                 </div>
 
                 <div class="form-group full-width">
-                    <button type="submit" class="save-btn">Lưu thay đổi</button>
+                    <button type="submit" name="update_profile" class="save-btn">Lưu thay đổi</button>
                 </div>
             </form>
         </div>
@@ -412,7 +449,22 @@ if (isset($_GET['order_id'])) {
                             </div>
                             <div class="order-info">
                                 <div class="order-status <?php echo $order['status']; ?>">
-                                    <?php echo $order['status'] === 'pending' ? 'Đang xử lý' : 'Đã xử lý'; ?>
+                                    <?php 
+                                        switch($order['status']) {
+                                            case 'pending':
+                                                echo 'Chưa xác nhận';
+                                                break;
+                                            case 'confirmed':
+                                                echo 'Đã xác nhận';
+                                                break;
+                                            case 'delivered':
+                                                echo 'Đã giao';
+                                                break;
+                                            case 'cancelled':
+                                                echo 'Đã hủy';
+                                                break;
+                                        }
+                                    ?>
                                 </div>
                                 <div class="order-total">
                                     <?php echo number_format($order['total_price'], 0, ',', '.'); ?>₫
@@ -472,7 +524,7 @@ function showOrderDetails(orderId) {
                 let html = `
                     <div class="order-info">
                         <p>Ngày đặt: ${new Date(data.order.created_at).toLocaleString('vi-VN')}</p>
-                        <p>Trạng thái: ${data.order.status === 'pending' ? 'Đang xử lý' : 'Đã xử lý'}</p>
+                        <p>Trạng thái: <span class="order-status ${data.order.status}">${data.order.status_text}</span></p>
                     </div>
                     <div class="order-items">
                 `;
@@ -544,4 +596,27 @@ Swal.fire({
     icon: 'error'
 });
 <?php endif; ?>
+
+document.getElementById('user_city').addEventListener('change', function() {
+    const city = this.value;
+    const districtSelect = document.getElementById('user_district');
+    
+    if (city) {
+        // Lấy danh sách quận/huyện từ API
+        fetch(`api/get_districts.php?city=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    data.districts.forEach(district => {
+                        districtSelect.innerHTML += `<option value="${district}">${district}</option>`;
+                    });
+                    districtSelect.disabled = false;
+                }
+            });
+    } else {
+        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+        districtSelect.disabled = true;
+    }
+});
 </script>

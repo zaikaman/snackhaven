@@ -13,12 +13,15 @@ if(isset($_GET['id'])) {
     $order_id = $_GET['id'];
     
     try {
-        // Lấy thông tin đơn hàng
-        $stmt = $pdo->prepare("SELECT o.*, u.first_name, u.last_name, u.email, u.phone,
-                              CONCAT(u.first_name, ' ', u.last_name) as customer_name 
-                              FROM orders o 
-                              LEFT JOIN users u ON o.user_id = u.id 
-                              WHERE o.id = ?");
+        // Lấy thông tin đơn hàng và khách hàng
+        $stmt = $pdo->prepare("
+            SELECT o.*, u.first_name, u.last_name, u.email, u.phone,
+            CONCAT(u.first_name, ' ', u.last_name) as customer_name,
+            o.shipping_city, o.shipping_district, o.shipping_address
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.id = ?
+        ");
         $stmt->execute([$order_id]);
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -32,10 +35,14 @@ if(isset($_GET['id'])) {
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             $response = [
+                'success' => true,
                 'order' => [
                     'id' => $order['id'],
                     'total_price' => $order['total_price'],
                     'status' => $order['status'],
+                    'shipping_city' => $order['shipping_city'],
+                    'shipping_district' => $order['shipping_district'],
+                    'shipping_address' => $order['shipping_address'],
                     'created_at' => $order['created_at']
                 ],
                 'customer' => [
@@ -53,7 +60,7 @@ if(isset($_GET['id'])) {
         }
     } catch(PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Database error']);
+        echo json_encode(['error' => $e->getMessage()]);
     }
 } else {
     http_response_code(400);
