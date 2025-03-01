@@ -12,15 +12,32 @@ if(!isset($_SESSION['admin_id'])) {
 if(isset($_POST['delete_product'])) {
     $product_id = $_POST['product_id'];
     try {
-        $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
+        // Kiểm tra xem sản phẩm đã được bán ra chưa
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as sold_count 
+            FROM order_items 
+            WHERE product_id = ?
+        ");
         $stmt->execute([$product_id]);
-        $success = "Đã xóa sản phẩm thành công";
+        $result = $stmt->fetch();
+        
+        if ($result['sold_count'] > 0) {
+            // Sản phẩm đã được bán ra, chỉ ẩn đi
+            $stmt = $pdo->prepare("UPDATE products SET active = 0 WHERE id = ?");
+            $stmt->execute([$product_id]);
+            $success = "Đã ẩn sản phẩm khỏi menu (sản phẩm này đã có trong đơn hàng)";
+        } else {
+            // Sản phẩm chưa được bán ra, xóa hoàn toàn
+            $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
+            $stmt->execute([$product_id]);
+            $success = "Đã xóa sản phẩm thành công";
+        }
     } catch(PDOException $e) {
-        $error = "Lỗi khi xóa sản phẩm: " . $e->getMessage();
+        $error = "Lỗi khi xử lý sản phẩm: " . $e->getMessage();
     }
 }
 
-// Lấy danh sách sản phẩm
+// Lấy danh sách sản phẩm (bao gồm cả sản phẩm đã ẩn)
 $stmt = $pdo->query("SELECT p.*, c.name as category_name 
                      FROM products p 
                      LEFT JOIN categories c ON p.category_id = c.id 
@@ -69,14 +86,19 @@ require_once 'includes/header.php';
                         </thead>
                         <tbody>
                             <?php foreach($products as $product): ?>
-                            <tr>
+                            <tr <?php echo $product['active'] ? '' : 'class="table-secondary"'; ?>>
                                 <td><?php echo $product['id']; ?></td>
                                 <td>
                                     <img src="<?php echo $product['image_url']; ?>" 
                                          alt="<?php echo $product['name']; ?>"
                                          style="width: 50px; height: 50px; object-fit: cover;">
                                 </td>
-                                <td><?php echo $product['name']; ?></td>
+                                <td>
+                                    <?php echo $product['name']; ?>
+                                    <?php if (!$product['active']): ?>
+                                        <span class="badge bg-secondary">Đã ẩn</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo $product['category_name']; ?></td>
                                 <td><?php echo number_format($product['price']); ?>đ</td>
                                 <td><?php echo $product['description']; ?></td>
@@ -88,7 +110,7 @@ require_once 'includes/header.php';
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                     <form method="POST" class="d-inline" 
-                                          onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                          onsubmit="return confirm('<?php echo $product['active'] ? 'Bạn có chắc muốn xóa sản phẩm này?' : 'Sản phẩm này đã bị ẩn. Bạn có chắc muốn xóa hoàn toàn?' ?>');">
                                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                                         <button type="submit" name="delete_product" class="btn btn-sm btn-danger">
                                             <i class="bi bi-trash"></i>
@@ -138,7 +160,10 @@ require_once 'includes/header.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Hình ảnh</label>
-                            <input type="file" class="form-control" name="image" accept="image/*" required>
+                            <input type="file" class="form-control" name="image" accept="image/*" required onchange="previewImage(this, 'imagePreview')">
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; object-fit: contain;">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -185,7 +210,10 @@ require_once 'includes/header.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Hình ảnh mới (để trống nếu không thay đổi)</label>
-                            <input type="file" class="form-control" name="image" accept="image/*">
+                            <input type="file" class="form-control" name="image" accept="image/*" onchange="previewImage(this, 'editImagePreview')">
+                            <div id="editImagePreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; object-fit: contain;">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -215,6 +243,26 @@ require_once 'includes/header.php';
                 });
         });
     });
+
+    // Hàm xem trước ảnh
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const previewImg = preview.querySelector('img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+            previewImg.src = '';
+        }
+    }
     </script>
 </body>
 </html> 

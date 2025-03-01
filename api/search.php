@@ -15,7 +15,7 @@ try {
     $offset = ($page - 1) * $itemsPerPage;
 
     // Xây dựng query
-    $where = [];
+    $where = ['p.active = 1'];
     $params = [];
 
     if (!empty($keyword)) {

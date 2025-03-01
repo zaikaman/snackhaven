@@ -18,7 +18,7 @@ try {
     $offset = ($page - 1) * $per_page;
 
     // Lấy tổng số sản phẩm của category
-    $total_sql = "SELECT COUNT(*) as total FROM products WHERE category_id = :category_id";
+    $total_sql = "SELECT COUNT(*) as total FROM products WHERE category_id = :category_id AND active = 1";
     $stmt = $pdo->prepare($total_sql);
     $stmt->execute(['category_id' => $category_id]);
     $total_row = $stmt->fetch();
@@ -30,7 +30,7 @@ try {
     $total_pages = ceil($total_products / $per_page);
 
     // Lấy sản phẩm theo phân trang
-    $sql = "SELECT * FROM products WHERE category_id = :category_id ORDER BY id LIMIT :limit OFFSET :offset";
+    $sql = "SELECT * FROM products WHERE category_id = :category_id AND active = 1 ORDER BY id LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     
     // Bind parameters

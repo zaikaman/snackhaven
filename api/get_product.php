@@ -25,10 +25,11 @@ try {
         exit;
     }
 
-    // Lấy các sản phẩm liên quan (cùng category)
+    // Lấy các sản phẩm liên quan (cùng category và đang active)
     $related_sql = "SELECT * FROM products 
                     WHERE category_id = :category_id 
                     AND id != :product_id 
+                    AND active = 1
                     ORDER BY RAND() 
                     LIMIT 4";
     $stmt = $pdo->prepare($related_sql);
