@@ -34,15 +34,6 @@ SnackHaven là một website bán đồ ăn vặt được xây dựng bằng PH
    http://localhost/snackhaven
    ```
 
-## Cấu hình môi trường
-
-Để website hoạt động chính xác, bạn cần cấu hình các thông số sau trong file `.env`:
-
-- `DB_URL`: URL kết nối đến database MySQL
-- `SMTP_USERNAME`: Email dùng để gửi mail
-- `SMTP_PASSWORD`: Mật khẩu ứng dụng của email
-- `IMGBB_API_KEY`: API key của ImgBB để upload ảnh
-
 ## Cấu trúc thư mục
 
 ```
