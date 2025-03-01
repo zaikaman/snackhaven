@@ -2,6 +2,9 @@
 session_start();
 require_once '../includes/config.php';
 
+// Cấu hình múi giờ Việt Nam
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // Kiểm tra đăng nhập
 if(!isset($_SESSION['admin_id'])) {
     http_response_code(401);
@@ -34,6 +37,9 @@ if(isset($_GET['id'])) {
             $stmt->execute([$order_id]);
             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
+            // Chuyển đổi thời gian sang múi giờ Việt Nam
+            $orderDate = new DateTime($order['created_at']);
+            
             $response = [
                 'success' => true,
                 'order' => [
@@ -43,7 +49,7 @@ if(isset($_GET['id'])) {
                     'shipping_city' => $order['shipping_city'],
                     'shipping_district' => $order['shipping_district'],
                     'shipping_address' => $order['shipping_address'],
-                    'created_at' => $order['created_at']
+                    'created_at' => $orderDate->format('d/m/Y H:i')
                 ],
                 'customer' => [
                     'name' => $order['customer_name'],

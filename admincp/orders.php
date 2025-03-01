@@ -3,6 +3,9 @@ session_start();
 require_once '../includes/config.php';
 require_once '../includes/vietnam_cities.php';
 
+// Cấu hình múi giờ Việt Nam
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // Kiểm tra đăng nhập
 if(!isset($_SESSION['admin_id'])) {
     header('Location: login.php');
@@ -226,7 +229,12 @@ require_once 'includes/header.php';
                                         ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></td>
+                                <td>
+                                    <?php
+                                    $orderDate = new DateTime($order['created_at']);
+                                    echo $orderDate->format('d/m/Y H:i');
+                                    ?>
+                                </td>
                                 <td>
                                     <button class="btn btn-sm btn-info view-order" 
                                             data-id="<?php echo $order['id']; ?>"
