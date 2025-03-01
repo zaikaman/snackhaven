@@ -377,6 +377,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-money-bill-wave fa-lg"></i>
                             Thanh toán khi nhận hàng (COD)
                         </label>
+
+                        <input type="radio" name="payment_method" id="bank" value="bank" hidden>
+                        <label for="bank">
+                            <i class="fas fa-university fa-lg"></i>
+                            Chuyển khoản ngân hàng
+                        </label>
+
+                        <div id="bankInfo" class="bank-info" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="color: #333; margin-bottom: 10px;">Thông tin chuyển khoản:</h4>
+                            <p style="margin-bottom: 5px;"><strong>Ngân hàng:</strong> MB Bank</p>
+                            <p style="margin-bottom: 5px;"><strong>Số tài khoản:</strong> 0931816175</p>
+                            <p style="margin-bottom: 5px;"><strong>Chủ tài khoản:</strong> DINH PHUC THINH</p>
+                            <p style="margin-bottom: 5px;"><strong>Nội dung:</strong> <span id="orderCode"></span></p>
+                            <p style="color: #dc3545; margin-top: 10px;">* Vui lòng chuyển khoản đúng số tiền và nội dung để đơn hàng được xử lý nhanh nhất</p>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -478,5 +493,20 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     displayOrderSummary();
     checkEmptyCart();
+});
+
+// Hiển thị thông tin chuyển khoản khi chọn phương thức thanh toán
+document.querySelectorAll('input[name="payment_method"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const bankInfo = document.getElementById('bankInfo');
+        if (this.value === 'bank') {
+            bankInfo.style.display = 'block';
+            // Tạo mã đơn hàng tạm thời
+            const orderCode = 'DH' + Date.now();
+            document.getElementById('orderCode').textContent = orderCode;
+        } else {
+            bankInfo.style.display = 'none';
+        }
+    });
 });
 </script>
