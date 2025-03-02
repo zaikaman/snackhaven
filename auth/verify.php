@@ -26,7 +26,10 @@ try {
     $verification = $stmt->fetch();
 
     if (!$verification) {
-        throw new Exception('Xác thực email thành công! Vui lòng đăng nhập để tiếp tục.');
+        $response['success'] = true;
+        $response['message'] = 'Xác thực email thành công! Vui lòng đăng nhập để tiếp tục.';
+        header('Location: ' . url('auth/login.php') . "?status=success&message=" . urlencode($response['message']));
+        exit;
     }
 
     // Bắt đầu transaction
