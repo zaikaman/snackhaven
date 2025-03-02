@@ -57,6 +57,9 @@ try {
 
     // Kết nối database
     $pdo = new PDO($dsn, $db['user'], $db['pass'], $options);
+
+    // Cấu hình timezone cho MySQL
+    $pdo->exec("SET time_zone = '+07:00'");
 } catch(PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }

@@ -22,10 +22,10 @@ try {
         $shipping_address = $_POST['shipping_address'];
     }
 
-    // Tạo đơn hàng mới
+    // Tạo đơn hàng mới với thời gian Việt Nam (+7)
     $stmt = $pdo->prepare("
         INSERT INTO orders (user_id, total_price, status, shipping_city, shipping_district, shipping_address, created_at)
-        VALUES (?, ?, 'pending', ?, ?, ?, NOW())
+        VALUES (?, ?, 'pending', ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 HOUR))
     ");
     $stmt->execute([$user_id, $total_price, $shipping_city, $shipping_district, $shipping_address]);
 
