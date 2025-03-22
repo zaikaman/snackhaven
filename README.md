@@ -22,7 +22,7 @@ SnackHaven là một website bán đồ ăn vặt được xây dựng bằng PH
 
 1. Cài đặt XAMPP từ [trang chủ XAMPP](https://www.apachefriends.org/)
 
-2. Tải repository này, giải nén file zip, lấy thư mục con của snackhaven-main và đổi tên thành snackhaven, sau đó lưu vào thư mục htdocs:
+2. Tải repository này, giải nén file zip, lấy thư mục con của snackhaven-main và đổi tên thành snackhaven, sau đó lưu vào thư mục htdocs (hoặc có thể mở Terminal tại thư mục htdocs và gõ lệnh git clone https://github.com/zaikaman/snackhaven):
    ```
    C:\xampp\htdocs\snackhaven
    ```
