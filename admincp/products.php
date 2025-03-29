@@ -37,12 +37,17 @@ if(isset($_POST['delete_product'])) {
     }
 }
 
-// Lấy danh sách sản phẩm (bao gồm cả sản phẩm đã ẩn)
-$stmt = $pdo->query("SELECT p.*, c.name as category_name 
-                     FROM products p 
-                     LEFT JOIN categories c ON p.category_id = c.id 
-                     ORDER BY p.id DESC");
-$products = $stmt->fetchAll();
+// Xử lý hiện lại sản phẩm
+if(isset($_POST['restore_product'])) {
+    $product_id = $_POST['product_id'];
+    try {
+        $stmt = $pdo->prepare("UPDATE products SET active = 1 WHERE id = ?");
+        $stmt->execute([$product_id]);
+        $success = "Đã hiện lại sản phẩm thành công";
+    } catch(PDOException $e) {
+        $error = "Lỗi khi xử lý sản phẩm: " . $e->getMessage();
+    }
+}
 
 // Lấy danh sách categories cho form thêm mới
 $stmt = $pdo->query("SELECT * FROM categories");
@@ -69,6 +74,22 @@ require_once 'includes/header.php';
             </button>
         </div>
 
+        <!-- Form tìm kiếm -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control" id="searchKeyword" placeholder="Nhập tên sản phẩm để tìm kiếm...">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -84,43 +105,16 @@ require_once 'includes/header.php';
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach($products as $product): ?>
-                            <tr <?php echo $product['active'] ? '' : 'class="table-secondary"'; ?>>
-                                <td><?php echo $product['id']; ?></td>
-                                <td>
-                                    <img src="<?php echo $product['image_url']; ?>" 
-                                         alt="<?php echo $product['name']; ?>"
-                                         style="width: 50px; height: 50px; object-fit: cover;">
-                                </td>
-                                <td>
-                                    <?php echo $product['name']; ?>
-                                    <?php if (!$product['active']): ?>
-                                        <span class="badge bg-secondary">Đã ẩn</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo $product['category_name']; ?></td>
-                                <td><?php echo number_format($product['price']); ?>đ</td>
-                                <td><?php echo $product['description']; ?></td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary edit-product" 
-                                            data-id="<?php echo $product['id']; ?>"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editProductModal">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <form method="POST" class="d-inline" 
-                                          onsubmit="return confirm('<?php echo $product['active'] ? 'Bạn có chắc muốn xóa sản phẩm này?' : 'Sản phẩm này đã bị ẩn. Bạn có chắc muốn xóa hoàn toàn?' ?>');">
-                                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                                        <button type="submit" name="delete_product" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                        <tbody id="productsTableBody">
+                            <!-- Dữ liệu sẽ được load bằng AJAX -->
                         </tbody>
                     </table>
+                    <!-- Phân trang -->
+                    <nav aria-label="Product pagination" class="d-flex justify-content-center mt-4">
+                        <ul class="pagination" id="pagination">
+                            <!-- Các nút phân trang sẽ được tạo bằng JavaScript -->
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -227,21 +221,173 @@ require_once 'includes/header.php';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Xử lý khi click nút sửa
-    document.querySelectorAll('.edit-product').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.dataset.id;
-            // Gọi API để lấy thông tin sản phẩm
-            fetch(`get_product.php?id=${productId}`)
-                .then(response => response.json())
-                .then(product => {
-                    document.getElementById('edit_product_id').value = product.id;
-                    document.getElementById('edit_name').value = product.name;
-                    document.getElementById('edit_category_id').value = product.category_id;
-                    document.getElementById('edit_price').value = product.price;
-                    document.getElementById('edit_description').value = product.description;
-                });
+    // Biến để lưu trữ trang hiện tại
+    let currentPage = 1;
+
+    // Biến lưu trữ các filter
+    let filters = {
+        page: 1,
+        keyword: ''
+    };
+
+    // Hàm load sản phẩm
+    function loadProducts(page = null) {
+        if (page) filters.page = page;
+        
+        const queryParams = new URLSearchParams({
+            page: filters.page,
+            keyword: filters.keyword
         });
+
+        fetch(`get_products_paginated.php?${queryParams}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tbody = document.getElementById('productsTableBody');
+                    let html = '';
+                    
+                    if (data.products.length === 0) {
+                        html = `
+                            <tr>
+                                <td colspan="7" class="text-center">Không tìm thấy sản phẩm nào</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.products.forEach(product => {
+                            html += `
+                                <tr ${!product.active ? 'class="table-secondary"' : ''}>
+                                    <td>${product.id}</td>
+                                    <td>
+                                        <img src="${product.image_url}" 
+                                             alt="${product.name}"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    </td>
+                                    <td>
+                                        ${product.name}
+                                        ${!product.active ? '<span class="badge bg-secondary">Đã ẩn</span>' : ''}
+                                    </td>
+                                    <td>${product.category_name}</td>
+                                    <td>${new Intl.NumberFormat('vi-VN').format(product.price)}đ</td>
+                                    <td>${product.description}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary edit-product" 
+                                                data-id="${product.id}"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editProductModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        ${!product.active ? `
+                                            <form method="POST" class="d-inline">
+                                                <input type="hidden" name="product_id" value="${product.id}">
+                                                <button type="submit" name="restore_product" class="btn btn-sm btn-success" title="Hiện lại sản phẩm">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        ` : ''}
+                                        <form method="POST" class="d-inline" 
+                                              onsubmit="return confirm('${product.active ? 'Bạn có chắc muốn xóa sản phẩm này?' : 'Sản phẩm này đã bị ẩn. Bạn có chắc muốn xóa hoàn toàn?'}');">
+                                            <input type="hidden" name="product_id" value="${product.id}">
+                                            <button type="submit" name="delete_product" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    
+                    tbody.innerHTML = html;
+
+                    // Cập nhật phân trang
+                    updatePagination(data.pagination);
+                    
+                    // Gán lại event listeners cho các nút sửa
+                    attachEditEventListeners();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Hàm cập nhật phân trang
+    function updatePagination(pagination) {
+        const paginationElement = document.getElementById('pagination');
+        let html = '';
+        
+        // Nút Previous
+        html += `
+            <li class="page-item ${pagination.current_page === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${pagination.current_page - 1}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+        `;
+        
+        // Các nút số trang
+        for (let i = 1; i <= pagination.total_pages; i++) {
+            if (
+                i === 1 || // Trang đầu
+                i === pagination.total_pages || // Trang cuối
+                (i >= pagination.current_page - 2 && i <= pagination.current_page + 2) // 2 trang trước và sau trang hiện tại
+            ) {
+                html += `
+                    <li class="page-item ${pagination.current_page === i ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>
+                `;
+            } else if (
+                i === pagination.current_page - 3 ||
+                i === pagination.current_page + 3
+            ) {
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+        
+        // Nút Next
+        html += `
+            <li class="page-item ${pagination.current_page === pagination.total_pages ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${pagination.current_page + 1}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        `;
+        
+        paginationElement.innerHTML = html;
+        
+        // Thêm event listeners cho các nút phân trang
+        document.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+                if (!isNaN(page) && page > 0) {
+                    currentPage = page;
+                    loadProducts(page);
+                }
+            });
+        });
+    }
+
+    // Hàm gán event listeners cho các nút sửa
+    function attachEditEventListeners() {
+        document.querySelectorAll('.edit-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.id;
+                fetch(`get_product.php?id=${productId}`)
+                    .then(response => response.json())
+                    .then(product => {
+                        document.getElementById('edit_product_id').value = product.id;
+                        document.getElementById('edit_name').value = product.name;
+                        document.getElementById('edit_category_id').value = product.category_id;
+                        document.getElementById('edit_price').value = product.price;
+                        document.getElementById('edit_description').value = product.description;
+                    });
+            });
+        });
+    }
+
+    // Load sản phẩm khi trang được tải
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProducts(1);
     });
 
     // Hàm xem trước ảnh
@@ -263,6 +409,20 @@ require_once 'includes/header.php';
             previewImg.src = '';
         }
     }
+
+    // Hàm áp dụng filter
+    function applyFilters() {
+        filters.keyword = document.getElementById('searchKeyword').value;
+        filters.page = 1; // Reset về trang 1 khi lọc
+        loadProducts();
+    }
+
+    // Thêm debounce cho input tìm kiếm
+    let searchTimeout;
+    document.getElementById('searchKeyword').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFilters, 500);
+    });
     </script>
 </body>
 </html> 

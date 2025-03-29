@@ -76,9 +76,10 @@ $totalRevenue = $stmt->fetch()['total_revenue'] ?? 0;
 // Xây dựng query cho thống kê khách hàng mua nhiều
 $query = "SELECT u.id, u.first_name, u.last_name, u.email, u.phone,
           COUNT(DISTINCT o.id) as total_orders,
-          SUM(o.total_price) as total_spent
+          SUM(oi.quantity * oi.price) as total_spent
           FROM users u
           JOIN orders o ON u.id = o.user_id
+          JOIN order_items oi ON o.id = oi.order_id
           WHERE o.status = 'delivered'
           AND o.created_at BETWEEN :start_date AND :end_date
           GROUP BY u.id, u.first_name, u.last_name, u.email, u.phone
@@ -90,24 +91,6 @@ $stmt->bindParam(':start_date', $start_date);
 $stmt->bindParam(':end_date', $end_date);
 $stmt->execute();
 $topCustomers = $stmt->fetchAll();
-
-// Lấy chi tiết đơn hàng của mỗi khách hàng trong khoảng thời gian
-$customerOrders = [];
-foreach ($topCustomers as $customer) {
-    $query = "SELECT o.id, o.total_price, o.status, o.created_at
-              FROM orders o
-              WHERE o.user_id = :user_id
-              AND o.status = 'delivered'
-              AND o.created_at BETWEEN :start_date AND :end_date
-              ORDER BY o.created_at DESC";
-              
-    $stmt = $pdo->prepare($query);
-    $stmt->bindParam(':user_id', $customer['id']);
-    $stmt->bindParam(':start_date', $start_date);
-    $stmt->bindParam(':end_date', $end_date);
-    $stmt->execute();
-    $customerOrders[$customer['id']] = $stmt->fetchAll();
-}
 
 $page_title = 'Dashboard';
 $current_page = 'dashboard';
@@ -195,11 +178,15 @@ require_once 'includes/header.php';
                 <form method="GET" class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Từ ngày</label>
-                        <input type="date" class="form-control" name="start_date" value="<?php echo $start_date; ?>">
+                        <input type="text" class="form-control" id="start_date_display" readonly
+                               value="<?php echo date('d/m/Y', strtotime($start_date)); ?>">
+                        <input type="hidden" name="start_date" id="start_date_hidden" value="<?php echo $start_date; ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Đến ngày</label>
-                        <input type="date" class="form-control" name="end_date" value="<?php echo $end_date; ?>">
+                        <input type="text" class="form-control" id="end_date_display" readonly
+                               value="<?php echo date('d/m/Y', strtotime($end_date)); ?>">
+                        <input type="hidden" name="end_date" id="end_date_hidden" value="<?php echo $end_date; ?>">
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Lọc</button>
@@ -223,59 +210,41 @@ require_once 'includes/header.php';
             </div>
             <div class="card-body">
                 <?php if (!empty($topCustomers)): ?>
-                    <?php foreach ($topCustomers as $customer): ?>
-                        <div class="customer-stats mb-4">
-                            <h6 class="border-bottom pb-2">
-                                <?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?>
-                                <small class="text-muted">
-                                    (<?php echo htmlspecialchars($customer['email']); ?> - 
-                                    <?php echo htmlspecialchars($customer['phone']); ?>)
-                                </small>
-                            </h6>
-                            <div class="row mb-2">
-                                <div class="col">
-                                    <strong>Tổng số đơn:</strong> <?php echo $customer['total_orders']; ?>
-                                </div>
-                                <div class="col">
-                                    <strong>Tổng chi tiêu:</strong> <?php echo number_format($customer['total_spent'], 0, ',', '.'); ?> VNĐ
-                                </div>
-                            </div>
-                            <?php if (!empty($customerOrders[$customer['id']])): ?>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Mã đơn hàng</th>
-                                                <th>Ngày đặt</th>
-                                                <th>Tổng tiền</th>
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($customerOrders[$customer['id']] as $order): ?>
-                                                <tr>
-                                                    <td>#<?php echo $order['id']; ?></td>
-                                                    <td><?php 
-                                                        $orderDate = new DateTime($order['created_at']);
-                                                        echo $orderDate->format('d/m/Y H:i'); 
-                                                    ?></td>
-                                                    <td><?php echo number_format($order['total_price'], 0, ',', '.'); ?> VNĐ</td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-info view-order" 
-                                                                data-id="<?php echo $order['id']; ?>"
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-target="#orderDetailModal">
-                                                            <i class="bi bi-eye"></i> Xem chi tiết
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Khách hàng</th>
+                                    <th>Thông tin liên hệ</th>
+                                    <th>Tổng số đơn</th>
+                                    <th>Tổng chi tiêu</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($topCustomers as $customer): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?></td>
+                                        <td>
+                                            Email: <?php echo htmlspecialchars($customer['email']); ?><br>
+                                            SĐT: <?php echo htmlspecialchars($customer['phone']); ?>
+                                        </td>
+                                        <td><?php echo $customer['total_orders']; ?></td>
+                                        <td><?php echo number_format($customer['total_spent'], 0, ',', '.'); ?> VNĐ</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-customer-orders" 
+                                                    data-id="<?php echo $customer['id']; ?>"
+                                                    data-name="<?php echo htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']); ?>"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#orderDetailModal">
+                                                <i class="bi bi-eye"></i> Xem đơn hàng
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php else: ?>
                     <div class="alert alert-info">
                         Không có dữ liệu thống kê trong khoảng thời gian này
@@ -287,10 +256,10 @@ require_once 'includes/header.php';
 
     <!-- Modal Chi tiết đơn hàng -->
     <div class="modal fade" id="orderDetailModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                    <h5 class="modal-title">Danh sách đơn hàng của khách hàng: <span id="customerName"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -306,69 +275,158 @@ require_once 'includes/header.php';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
     <script>
-    // Xử lý khi click nút xem chi tiết đơn hàng
-    document.querySelectorAll('.view-order').forEach(button => {
+    $(document).ready(function(){
+        // Khởi tạo datepicker với định dạng dd/mm/yyyy
+        $('#start_date_display, #end_date_display').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            language: 'vi'
+        });
+
+        // Xử lý khi ngày được chọn
+        $('#start_date_display').on('changeDate', function(e) {
+            const date = e.date;
+            const formattedDate = date.getFullYear() + '-' + 
+                                String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(date.getDate()).padStart(2, '0');
+            $('#start_date_hidden').val(formattedDate);
+        });
+
+        $('#end_date_display').on('changeDate', function(e) {
+            const date = e.date;
+            const formattedDate = date.getFullYear() + '-' + 
+                                String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(date.getDate()).padStart(2, '0');
+            $('#end_date_hidden').val(formattedDate);
+        });
+    });
+
+    // Xử lý khi click nút xem đơn hàng của khách hàng
+    document.querySelectorAll('.view-customer-orders').forEach(button => {
         button.addEventListener('click', function() {
-            const orderId = this.dataset.id;
-            fetch(`get_order.php?id=${orderId}`)
+            const customerId = this.dataset.id;
+            const customerName = this.dataset.name;
+            document.getElementById('customerName').textContent = customerName;
+            
+            fetch(`get_customer_orders.php?user_id=${customerId}&start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         let html = `
-                            <div class="mb-3">
-                                <h6>Thông tin khách hàng:</h6>
-                                <p>Họ tên: ${data.customer.name}<br>
-                                   Email: ${data.customer.email}<br>
-                                   SĐT: ${data.customer.phone}</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6>Địa chỉ giao hàng:</h6>
-                                <p>${data.order.shipping_address ? data.order.shipping_address : 'Chưa có địa chỉ'}${
-                                    data.order.shipping_district || data.order.shipping_city ? 
-                                    '<br>' + 
-                                    [
-                                        data.order.shipping_district,
-                                        data.order.shipping_city
-                                    ].filter(Boolean).join(', ') 
-                                    : ''
-                                }</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6>Chi tiết đơn hàng:</h6>
-                                <table class="table table-sm">
+                            <div class="table-responsive">
+                                <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Sản phẩm</th>
-                                            <th>Số lượng</th>
-                                            <th>Đơn giá</th>
-                                            <th>Thành tiền</th>
+                                            <th>Mã đơn hàng</th>
+                                            <th>Ngày đặt</th>
+                                            <th>Địa chỉ giao hàng</th>
+                                            <th>Tổng tiền</th>
+                                            <th>Trạng thái</th>
+                                            <th>Chi tiết</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
                         
-                        data.items.forEach(item => {
+                        data.orders.forEach(order => {
+                            const status = {
+                                'pending': 'Chưa xác nhận',
+                                'confirmed': 'Đã xác nhận',
+                                'delivered': 'Đã giao',
+                                'cancelled': 'Đã hủy'
+                            };
+                            
+                            // Chuyển đổi định dạng ngày tháng
+                            const orderDate = new Date(order.created_at);
+                            const formattedDate = orderDate.getDate().toString().padStart(2, '0') + '/' +
+                                                (orderDate.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                                                orderDate.getFullYear() + ' ' +
+                                                orderDate.getHours().toString().padStart(2, '0') + ':' +
+                                                orderDate.getMinutes().toString().padStart(2, '0');
+                            
                             html += `
                                 <tr>
-                                    <td>${item.product_name}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${new Intl.NumberFormat('vi-VN').format(item.price)}đ</td>
-                                    <td>${new Intl.NumberFormat('vi-VN').format(item.quantity * item.price)}đ</td>
+                                    <td>#${order.id}</td>
+                                    <td>${formattedDate}</td>
+                                    <td>${order.shipping_address}<br>${order.shipping_district}, ${order.shipping_city}</td>
+                                    <td>${new Intl.NumberFormat('vi-VN').format(order.total_price)}đ</td>
+                                    <td>${status[order.status]}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info view-order-items" 
+                                                data-id="${order.id}">
+                                            Chi tiết
+                                        </button>
+                                    </td>
                                 </tr>`;
                         });
                         
                         html += `
                                     </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
-                                            <td><strong>${new Intl.NumberFormat('vi-VN').format(data.order.total_price)}đ</strong></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>`;
                         
                         document.getElementById('orderDetail').innerHTML = html;
+                        
+                        // Thêm event listener cho các nút xem chi tiết đơn hàng
+                        document.querySelectorAll('.view-order-items').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const orderId = this.dataset.id;
+                                fetch(`get_order.php?id=${orderId}`)
+                                    .then(response => response.json())
+                                    .then(orderData => {
+                                        if (orderData.success) {
+                                            let itemsHtml = `
+                                                <h6 class="mt-4">Chi tiết đơn hàng #${orderId}:</h6>
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Sản phẩm</th>
+                                                            <th>Số lượng</th>
+                                                            <th>Đơn giá</th>
+                                                            <th>Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>`;
+                                            
+                                            orderData.items.forEach(item => {
+                                                itemsHtml += `
+                                                    <tr>
+                                                        <td>${item.product_name}</td>
+                                                        <td>${item.quantity}</td>
+                                                        <td>${new Intl.NumberFormat('vi-VN').format(item.price)}đ</td>
+                                                        <td>${new Intl.NumberFormat('vi-VN').format(item.quantity * item.price)}đ</td>
+                                                    </tr>`;
+                                            });
+                                            
+                                            itemsHtml += `
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                            <td><strong>${new Intl.NumberFormat('vi-VN').format(orderData.order.total_price)}đ</strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>`;
+                                            
+                                            // Thêm chi tiết đơn hàng vào dưới bảng đơn hàng
+                                            const orderRow = this.closest('tr');
+                                            const detailRow = orderRow.nextElementSibling;
+                                            if (detailRow && detailRow.classList.contains('order-items-detail')) {
+                                                detailRow.remove();
+                                            } else {
+                                                const newRow = document.createElement('tr');
+                                                newRow.classList.add('order-items-detail');
+                                                newRow.innerHTML = `<td colspan="6">${itemsHtml}</td>`;
+                                                orderRow.parentNode.insertBefore(newRow, orderRow.nextSibling);
+                                            }
+                                        }
+                                    });
+                            });
+                        });
                     }
                 });
         });
