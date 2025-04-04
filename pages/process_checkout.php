@@ -22,12 +22,13 @@ try {
         $shipping_address = $_POST['shipping_address'];
     }
 
-    // Tạo đơn hàng mới với thời gian Việt Nam (+7)
+    // Tạo đơn hàng mới với thời gian từ client
+    $client_time = isset($_POST['client_time']) ? $_POST['client_time'] : date('Y-m-d H:i:s');
     $stmt = $pdo->prepare("
         INSERT INTO orders (user_id, total_price, status, shipping_city, shipping_district, shipping_address, created_at)
-        VALUES (?, ?, 'pending', ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 HOUR))
+        VALUES (?, ?, 'pending', ?, ?, ?, ?)
     ");
-    $stmt->execute([$user_id, $total_price, $shipping_city, $shipping_district, $shipping_address]);
+    $stmt->execute([$user_id, $total_price, $shipping_city, $shipping_district, $shipping_address, $client_time]);
 
     // ... existing code ...
 } catch (Exception $e) {

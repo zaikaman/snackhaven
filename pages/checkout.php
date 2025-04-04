@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 shipping_address,
                 created_at
             )
-            VALUES (?, ?, 'pending', ?, ?, ?, NOW())
+            VALUES (?, ?, 'pending', ?, ?, ?, ?)
         ");
 
         // Tính tổng tiền và chuẩn bị dữ liệu cho order_items
@@ -63,12 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
         }
 
+        // Lấy thời gian từ client
+        $client_time = isset($_POST['client_time']) ? $_POST['client_time'] : date('Y-m-d H:i:s');
+
         $createOrderStmt->execute([
             $_SESSION['user_id'],
             $totalPrice,
             $_POST['shipping_city'],
             $_POST['shipping_district'],
-            $_POST['shipping_address']
+            $_POST['shipping_address'],
+            $client_time
         ]);
 
         $orderId = $pdo->lastInsertId();
@@ -345,6 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="checkout-form">
             <form method="POST" id="checkoutForm">
                 <input type="hidden" name="cart_data" id="cart_data">
+                <input type="hidden" name="client_time" id="client_time">
                 <div class="form-section">
                     <h2>Thông tin giao hàng</h2>
                     
@@ -527,7 +532,63 @@ function displayOrderSummary() {
 // Gọi hàm hiển thị khi trang được tải
 document.addEventListener('DOMContentLoaded', function() {
     displayOrderSummary();
+
+    // Kiểm tra thời gian hệ thống khi tải trang
+    checkSystemTime();
+
+    // Thêm sự kiện submit form để cập nhật thời gian client
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Ngăn form submit mặc định
+        
+        // Kiểm tra thời gian hệ thống trước khi cho phép đặt hàng
+        checkSystemTime().then(isValidTime => {
+            if (isValidTime) {
+                // Lấy thời gian hiện tại từ máy khách hàng
+                const now = new Date();
+                // Chuyển đổi sang định dạng YYYY-MM-DD HH:mm:ss
+                const clientTime = now.getFullYear() + '-' + 
+                                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(now.getDate()).padStart(2, '0') + ' ' + 
+                                String(now.getHours()).padStart(2, '0') + ':' + 
+                                String(now.getMinutes()).padStart(2, '0') + ':' + 
+                                String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('client_time').value = clientTime;
+                
+                // Submit form
+                this.submit();
+            } else {
+                Swal.fire({
+                    title: 'Thời gian không hợp lệ!',
+                    text: 'Đơn hàng không hợp lệ, vui lòng sửa thời gian hệ thống đúng với múi giờ Việt Nam (UTC+7)',
+                    icon: 'error'
+                });
+            }
+        });
+    });
 });
+
+// Hàm kiểm tra thời gian hệ thống
+async function checkSystemTime() {
+    try {
+        const response = await fetch('api/get_server_time.php');
+        const data = await response.json();
+        
+        if (data.success) {
+            const serverTime = new Date(data.server_time);
+            const clientTime = new Date();
+            
+            // Tính chênh lệch thời gian (phút)
+            const timeDiff = Math.abs(serverTime - clientTime) / (1000 * 60);
+            
+            // Cho phép sai số 5 phút
+            return timeDiff <= 5;
+        }
+        return false;
+    } catch (error) {
+        console.error('Lỗi kiểm tra thời gian:', error);
+        return false;
+    }
+}
 
 // Xử lý chọn địa chỉ
 document.querySelectorAll('input[name="address_option"]').forEach(input => {
