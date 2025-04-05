@@ -275,9 +275,9 @@ $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
                     <div class="product-price"></div>
                     
                     <div class="quantity-control">
-                        <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                        <button class="quantity-btn" onclick="updateProductQuantity(-1)">-</button>
                         <input type="number" class="quantity-input" value="1" min="1" max="10" id="quantity">
-                        <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                        <button class="quantity-btn" onclick="updateProductQuantity(1)">+</button>
                     </div>
                     
                     <button class="add-to-cart-btn">
@@ -424,7 +424,7 @@ function displayRelatedProducts(products) {
     });
 }
 
-function updateQuantity(change) {
+function updateProductQuantity(change) {
     const input = document.getElementById('quantity');
     let value = parseInt(input.value) + change;
     

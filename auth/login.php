@@ -31,11 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Email hoặc mật khẩu không chính xác');
         }
 
-        // Kiểm tra xác thực email
-        if (!$user['verified']) {
-            throw new Exception('Vui lòng xác thực email trước khi đăng nhập');
-        }
-
         // Tạo session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];

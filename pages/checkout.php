@@ -533,62 +533,20 @@ function displayOrderSummary() {
 document.addEventListener('DOMContentLoaded', function() {
     displayOrderSummary();
 
-    // Kiểm tra thời gian hệ thống khi tải trang
-    checkSystemTime();
-
     // Thêm sự kiện submit form để cập nhật thời gian client
     document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Ngăn form submit mặc định
-        
-        // Kiểm tra thời gian hệ thống trước khi cho phép đặt hàng
-        checkSystemTime().then(isValidTime => {
-            if (isValidTime) {
-                // Lấy thời gian hiện tại từ máy khách hàng
-                const now = new Date();
-                // Chuyển đổi sang định dạng YYYY-MM-DD HH:mm:ss
-                const clientTime = now.getFullYear() + '-' + 
-                                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                                String(now.getDate()).padStart(2, '0') + ' ' + 
-                                String(now.getHours()).padStart(2, '0') + ':' + 
-                                String(now.getMinutes()).padStart(2, '0') + ':' + 
-                                String(now.getSeconds()).padStart(2, '0');
-                document.getElementById('client_time').value = clientTime;
-                
-                // Submit form
-                this.submit();
-            } else {
-                Swal.fire({
-                    title: 'Thời gian không hợp lệ!',
-                    text: 'Đơn hàng không hợp lệ, vui lòng sửa thời gian hệ thống đúng với múi giờ Việt Nam (UTC+7)',
-                    icon: 'error'
-                });
-            }
-        });
+        // Lấy thời gian hiện tại từ máy khách hàng
+        const now = new Date();
+        // Chuyển đổi sang định dạng YYYY-MM-DD HH:mm:ss
+        const clientTime = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0') + ' ' + 
+                         String(now.getHours()).padStart(2, '0') + ':' + 
+                         String(now.getMinutes()).padStart(2, '0') + ':' + 
+                         String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('client_time').value = clientTime;
     });
 });
-
-// Hàm kiểm tra thời gian hệ thống
-async function checkSystemTime() {
-    try {
-        const response = await fetch('api/get_server_time.php');
-        const data = await response.json();
-        
-        if (data.success) {
-            const serverTime = new Date(data.server_time);
-            const clientTime = new Date();
-            
-            // Tính chênh lệch thời gian (phút)
-            const timeDiff = Math.abs(serverTime - clientTime) / (1000 * 60);
-            
-            // Cho phép sai số 5 phút
-            return timeDiff <= 5;
-        }
-        return false;
-    } catch (error) {
-        console.error('Lỗi kiểm tra thời gian:', error);
-        return false;
-    }
-}
 
 // Xử lý chọn địa chỉ
 document.querySelectorAll('input[name="address_option"]').forEach(input => {

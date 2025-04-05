@@ -53,34 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Bắt đầu transaction
         $pdo->beginTransaction();
 
-        // Thêm user mới
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, verification_token) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, $email, $hashed_password, $verification_token]);
-        $user_id = $pdo->lastInsertId();
-
-        // Thêm verification token
-        $stmt = $pdo->prepare("INSERT INTO email_verifications (user_id, token, type, expires_at) VALUES (?, ?, 'registration', ?)");
-        $stmt->execute([$user_id, $verification_token, $token_expiry]);
-
-        // Gửi email xác thực
-        $verification_link = "https://" . $_SERVER['HTTP_HOST'] . url('auth/verify.php') . "?token=" . $verification_token;
-        $email_body = "
-            <h2>Xác thực tài khoản SnackHaven</h2>
-            <p>Cảm ơn bạn đã đăng ký tài khoản tại SnackHaven.</p>
-            <p>Vui lòng click vào link bên dưới để xác thực email của bạn:</p>
-            <p><a href='{$verification_link}'>{$verification_link}</a></p>
-            <p>Link này sẽ hết hạn sau 24 giờ.</p>
-        ";
-
-        if (!sendMail($email, "Xác thực tài khoản SnackHaven", $email_body)) {
-            throw new Exception('Không thể gửi email xác thực');
-        }
+        // Thêm user mới với verified = 1
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, verified) VALUES (?, ?, ?, 1)");
+        $stmt->execute([$username, $email, $hashed_password]);
 
         // Commit transaction
         $pdo->commit();
 
         $response['success'] = true;
-        $response['message'] = 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.';
+        $response['message'] = 'Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.';
     } catch (Exception $e) {
         // Rollback nếu có lỗi
         if ($pdo->inTransaction()) {
