@@ -37,8 +37,8 @@ $newMessages = $stmt->fetch()['total'];
 
 // Xây dựng query cho thống kê sản phẩm bán chạy
 $query = "SELECT p.id, p.name, p.price, c.name as category_name,
-          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND o.status = 'delivered' THEN oi.quantity ELSE 0 END), 0) as total_quantity,
-          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND o.status = 'delivered' THEN oi.quantity * oi.price ELSE 0 END), 0) as total_revenue
+          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND (o.status = 'delivered' OR o.status = 'confirmed') THEN oi.quantity ELSE 0 END), 0) as total_quantity,
+          COALESCE(SUM(CASE WHEN o.created_at BETWEEN :start_date AND :end_date AND (o.status = 'delivered' OR o.status = 'confirmed') THEN oi.quantity * oi.price ELSE 0 END), 0) as total_revenue
           FROM products p
           LEFT JOIN categories c ON p.category_id = c.id
           LEFT JOIN order_items oi ON p.id = oi.product_id

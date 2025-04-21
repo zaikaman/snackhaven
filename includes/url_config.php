@@ -32,6 +32,18 @@ function check_login() {
     if (!isset($_SESSION['user_id'])) {
         redirect('auth/login.php');
     }
+
+    // Kiểm tra trạng thái active của tài khoản
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT active FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    if (!$user || !$user['active']) {
+        // Xóa session và chuyển về trang đăng nhập
+        session_destroy();
+        redirect('auth/login.php?status=error&message=' . urlencode('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'));
+    }
 }
 
 // Hàm lấy thông tin user đang đăng nhập

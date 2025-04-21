@@ -31,6 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Email hoặc mật khẩu không chính xác');
         }
 
+        // Kiểm tra tài khoản có bị khóa không
+        if (!$user['active']) {
+            throw new Exception('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+        }
+
         // Tạo session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
